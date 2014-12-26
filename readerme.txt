@@ -1,0 +1,18 @@
+o2ovender版本项目管理：
+https://github.com/o2ovender/o2ovender.git
+
+邮箱：o2ovender@126.com 邮箱密码：o2ovender126com
+github的用户名：o2ovender      注册邮箱：o2ovender@126.com   密码：o2ovender126com
+
+github简单使用教程：
+1.安装
+http://msysgit.github.io/下载安装
+2.在文件夹右键，点击Git Gui
+3.在Git Gui对话框中选择“克隆已有版本库”。
+source location选择：https://github.com/o2ovender/o2ovender.git
+target directory为本地的目录
+点击克隆，获取到我们的开发工程了。
+
+工程目录结构：
+1.doc   文档目录，放置需求文档，对方接口文档
+2.src   开发目录。其中Service为服务器工程目录。Mobile为手机端目录工程。

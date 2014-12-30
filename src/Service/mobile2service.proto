@@ -1,0 +1,54 @@
+package o2ovender;
+
+option optimize_for = CODE_SIZE;
+
+// 获得激活码
+message get_identifying_code_req
+{
+	required string uid = 1; // 手机号码
+};
+
+// 注册请求
+message register_req
+{
+	required string uid              = 1; // 手机号码
+	required string pass_word        = 2; // 密码
+	optional string identifying_code = 3; // 验证码
+};
+
+// 注册响应
+message register_resp
+{
+	required int32 result = 1;      // 登陆结果: 0成功,其它失败
+	optional string msg  = 2;       // 失败原因
+};
+
+// 登陆请求
+message login_req
+{
+	required string uid              = 1; // 手机号码
+	required string pass_word        = 2; // 密码
+};
+
+// 登陆响应
+message login_resp
+{
+	required int32 result = 1;      // 登陆结果: 0成功,其它失败
+	optional string msg  = 2;       // 失败原因
+};
+
+// 请求
+message request
+{
+	required int32 type         = 1;
+	optional login register_req = 2;
+	optional login login_req    = 3;
+};
+
+// 响应
+message response
+{
+	required int32 type                  = 1;
+	optional login_resp login_resp       = 2
+	optional register_resp register_resp = 3;
+};

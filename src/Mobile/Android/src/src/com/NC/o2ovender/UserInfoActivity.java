@@ -8,7 +8,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class UserInfo extends Activity {
+public class UserInfoActivity extends Activity {
 	public final static String TAG = "UserInfo";
 	public static final String U2M_BUNDLE_KEY = "userinfo2main_bundle_key";
 	
@@ -27,7 +27,7 @@ public class UserInfo extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent();
-				intent.setClass(UserInfo.this, O2OVenderActivity.class);
+				intent.setClass(UserInfoActivity.this, O2OVenderActivity.class);
 				Bundle bundle = new Bundle();
 				bundle.putString(U2M_BUNDLE_KEY, "userinfo to main");
 				intent.putExtras(bundle);
@@ -40,7 +40,7 @@ public class UserInfo extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.userinfo);		
+		setContentView(R.layout.userinfo_activity);
 		InitView();
 	}
 }

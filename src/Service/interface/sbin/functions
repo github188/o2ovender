@@ -1,0 +1,299 @@
+# source function library
+. /etc/rc.d/init.d/functions
+
+check()
+{
+	echo -n $"Checking $prog: "
+
+	cd $(dirname $0)
+	while true ; do
+	for file in ${files[*]} ; do
+		if [ ! -f "$file" ] ; then
+			failure
+			echo
+			echo -n "$file: No such file or directory"
+			break 2
+		fi
+	done
+
+	if [ "a$fastlog" != "a" ] ; then
+	dir=`grep $fastlog | awk -F= '{print $2}'`
+	mkdir -p $dir
+	mkdir -p $dir/cmd_amount
+	fi
+
+	mkdir -p ../log
+	mkdir -p ../stat
+	success
+	break
+	done
+
+	RETVAL=$?
+	echo
+}
+
+start()
+{
+	check
+
+	echo -n $"Starting $prog: "
+	export LD_LIBRARY_PATH=../lib/:${LD_LIBRARY_PATH}
+	ulimit -c unlimited
+	ulimit -n 65000
+	
+	cd $(dirname $0)
+	DDD=`/bin/date +%Y-%m-%d--%H:%M:%S`
+        #cp -R ../log ../log_backup/log_${DDD}
+	#mv ../log ../log_backup/log_${DDD}
+	#mkdir ../log
+	cd ../bin/
+	./$prog $args 1>../log/stdout.log 2>../log/stderr.log && success || failure
+	RETVAL=$?
+	echo
+}
+
+stop()
+{
+	echo -n $"Stopping $prog: "
+	if [ -n "`pidofproc $prog`" ] ; then
+            killproc $prog
+        else
+            failure $"Stopping $prog"
+        fi
+        RETVAL=$?
+        echo
+}
+
+reload()
+{
+	echo -n $"Reloading $prog: "
+	if [ -n "`pidofproc $prog`" ] ; then
+		killproc $prog -HUP
+	else
+		failure $"Reloading $prog"
+	fi
+	RETVAL=$?
+	echo
+}
+
+monitor()
+{
+        echo -n $"Monitoring $prog: "
+        if [ -n "`pidofproc $prog`" ] ; then
+                success $"Monitoring $prog"
+		echo
+        else
+		warning $"Monitoring $prog"
+		echo
+                start
+		sendemail
+        fi
+        RETVAL=$?
+}
+
+stat()
+{
+	cd $(dirname $0)
+        file="../stat/$stat"
+        if [ "a$stat" = "a" ] ; then
+                file="../stat/statserver_stat_`date +'%Y%m%d'`"
+        fi
+        if [ $# -eq 2 ]; then
+                start=$2
+                tail -f $file | awk -F] '{print $'${start}'}'
+        elif [ $# -eq 3 ]; then
+                start=$2
+                end=$3
+                tail -f $file | awk -F] '{for(i='${start}';i<='${end}';i++){print i,$i}}'
+        else
+                tail -f $file | awk -F] '{for(i=1;i<=NF;i++){print i,$i}}'
+        fi
+}
+
+status()
+{
+	cd $(dirname $0)
+        file="../stat/$status"
+        if [ "a$stat" = "a" ] ; then
+                file="../stat/statserver_status_`date +'%Y%m%d'`"
+        fi
+        if [ $# -eq 2 ]; then
+                start=$2
+                tail -f $file | awk -F] '{print $'${start}'}'
+        elif [ $# -eq 3 ]; then
+                start=$2
+                end=$3
+                tail -f $file | awk -F] '{for(i='${start}';i<='${end}';i++){print i,$i}}'
+        else
+                tail -f $file | awk -F] '{for(i=1;i<=NF;i++){print i,$i}}'
+        fi
+}
+
+log()
+{
+	cd $(dirname $0)
+	tail -f $log
+}
+
+rmfastlog()
+{
+	cd $(dirname $0)
+        echo -n $"rmfastlog $prog: "
+	if [ "a$fastlog" != "a" ] ; then
+		d=`date -d'2 days ago' +'%Y%m%d'`
+		dir=`grep $fastlog | awk -F= '{print $2}'`
+		rm -f $dir/*log_${d}*
+		rm -f $dir/cmd_amount/*log_${d}*
+	fi
+	success
+	echo
+}
+
+rmstat()
+{
+	echo -n $"rmstat $prog: "
+	
+	dir=$(dirname $0)
+	d=`date -d'1 years ago' +'%Y%m%d'`
+	rm -f $dir/../stat/*${d}*
+	
+	success
+	echo
+}
+
+rmlog_backup()
+{
+        echo -n $"rmlog_backup $prog: "
+        dir=$(dirname $0)
+        d=`date -d'7 day ago' +'%Y%m%d'`
+        #rm -rf $dir/../log_backup/*${d}*
+        /usr/bin/find ../log_backup/ -name "log_[0-9]*" -mtime +3 -type d -exec rm -vrf {} \;
+        success
+        echo
+}
+
+sendemail()
+{
+	if [ $# -gt 0 ] ; then
+		msg="$1"
+	else
+		msg="`pwd`/${prog} restart"
+	fi
+	/usr/local/bin/sendEmail -q \
+-s mail.cc.sandai.net \
+-f monitor@cc.sandai.net \
+-t qiuzhicong@cc.sandai.net \
+-xu monitor@cc.sandai.net -xp 121212 \
+-u "[SHUB ${HOSTNAME}] $prog" -m "$msg"
+}
+
+lanip()
+{
+	ip=(`echo "$1" | awk -F. '{for(i=1;i<=NF;i++){print $i}}'`)
+	if [ ${#ip[*]} -ne 4 ] ; then
+		echo 0
+	elif [ ${ip[0]} -eq 10 ] ; then
+		echo 1
+	elif [ ${ip[0]} -eq 172 -a ${ip[1]} -ge 16 -a ${ip[1]} -le 31 ] ; then
+		echo 1
+	elif [ ${ip[0]} -eq 192 -a ${ip[1]} -eq 168 ] ; then
+		echo 1
+	else
+		echo 0
+	fi
+}
+
+ip()
+{
+	if [ $# -lt 1 ] ; then
+		echo "usage: $0 ip <exterIP> <interIP>"
+		echo "local machine's ip: "
+		/sbin/ifconfig | awk '{if ( $1 == "inet" && $3 ~ /^Bcast/) print $2}' | cut -f2 -d ":"
+	else
+	echo -n $"ip $prog: "
+	iplist=(`/sbin/ifconfig | awk '{if ( $1 == "inet" && $3 ~ /^Bcast/) print $2}' | cut -f2 -d ":"`)
+	externalip="$1"
+	internalip="$2"
+	
+	externalipok=0
+	internalipok=0
+	for ip in ${iplist[*]} ; do
+		if [ "a$externalip" = "a$ip" ] ; then
+			externalipok=1
+		elif [ "a$internalip" = "a$ip" ] ; then
+			internalipok=1
+		fi
+	done
+
+	if [ $externalipok -eq 1 -a $internalipok -eq 1 ] ; then
+	dir=$(dirname $0)
+	for item in ${interIP[*]} ; do
+		sed -i "s/${item}=.*/${item}=$internalip/g" ${dir}/$conf
+	done
+	for item in ${exterIP[*]} ; do
+		sed -i "s/${item}=.*/${item}=$externalip/g" ${dir}/$conf
+	done
+	success
+	else
+	failure
+	fi
+	echo
+	fi
+}
+
+
+
+run()
+{
+# See how we were called.
+case "$1" in
+	check)
+		check
+		;;
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	reload)
+		reload
+		;;
+	monitor)
+		monitor
+		;;
+	restart)
+		stop
+		start
+		;;
+	stat)
+		stat $*
+		;;
+	status)
+		status $*
+		;;
+	log)
+		log
+		;;
+	rmfastlog)
+		rmfastlog
+		;;
+	rmstat)
+		rmstat
+		;;
+	rmlog_backup)
+		rmlog_backup
+		;;
+	alarm)
+		;;
+	ip)
+		shift
+		ip $*
+		;;
+	*)
+		echo $"usage: $prog {start|stop|restart|reload|stat|status|log|rmfastlog|rmstat|rmlog_backup|ip <exterIP> <interIP>}"
+		exit 1
+esac
+
+exit $RETVAL
+}

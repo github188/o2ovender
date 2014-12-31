@@ -80,6 +80,10 @@ int SDMobileSocket::on_recv(SDSharedSocket& socket)
 			
 		LOG4CPLUS_DEBUG(logger, "recv HTTP BODY done");
 		//LOG4CPLUS_DEBUG(logger, "recv HTTP BODY: " << string(body_ptr, body_length));
+
+        o2ovender::request request;
+        bool parse_result = request.ParseFromArray(body_ptr, body_length);
+		LOG4CPLUS_DEBUG(logger, "ParseFromArray " << (parse_result ? "true" : "false") << "\n" << request.DebugString());
         return 0;
     }
     else {

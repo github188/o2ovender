@@ -2,6 +2,7 @@
 #define SD_MOBILE_SOCKET_H
 
 #include <common/SDNetFramework.h>
+#include <protocol/mobile2service.pb.h>
 
 #include "SDWorkHandler.h"
 

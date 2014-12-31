@@ -41,14 +41,15 @@ message login_resp
 message request
 {
 	required int32 type         = 1;
-	optional login register_req = 2;
-	optional login login_req    = 3;
+	optional get_identifying_code_req get_identifying_code_req = 2;
+	optional register_req register_req = 3;
+	optional login_req login_req    = 4;
 };
 
 // œÏ”¶
 message response
 {
 	required int32 type                  = 1;
-	optional login_resp login_resp       = 2
+	optional login_resp login_resp       = 2;
 	optional register_resp register_resp = 3;
 };

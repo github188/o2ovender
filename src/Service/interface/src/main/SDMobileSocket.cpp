@@ -146,6 +146,20 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
     SDAccountInfo account_info;
     account_info.m_uid = uid;
     do {
+        if  (uid.empty()) {
+            login_resp->set_result(-1);
+            login_resp->set_msg("no uid");
+            login_resp->set_errcode(o2ovender::login_resp_ERRCODE_ACCOUNT_EMPTY);
+            break;
+        }
+        
+        if  (password.empty()) {
+            login_resp->set_result(-1);
+            login_resp->set_msg("no password");
+            login_resp->set_errcode(o2ovender::login_resp_ERRCODE_PASSWD_EMPTY);
+            break;
+        }
+       
         int res = SDMongoDBAccountInfo::query(mongodb, account_info);
         if (res == -1) {
             login_resp->set_result(-1);
@@ -195,6 +209,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
     const o2ovender::register_req& register_req = m_request.register_req();
     const std::string& uid = register_req.uid();
     const std::string& password = register_req.pass_word();
+    const std::string& identifying_code = register_req.identifying_code();
 
     m_response.set_type(o2ovender::response_TYPE_REGISTER);
     o2ovender::register_resp* register_resp = m_response.mutable_register_resp();
@@ -202,6 +217,27 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
     SDAccountInfo account_info;
     account_info.m_uid = uid;
     do {
+        if (uid.empty()) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("no uid");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_ACCOUNT_EMPTY);
+            break;
+        }
+        
+        if (password.empty()) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("no password");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_PASSWD_EMPTY);
+            break;
+        }
+        
+        if (identifying_code.empty()) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("no identifying code");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_IDCODE_EMPTY);
+            break;
+        }
+
         int res = SDMongoDBAccountInfo::query(mongodb, account_info);
         if (res == -1) {
             register_resp->set_result(-1);
@@ -211,7 +247,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
         }
 
         if (res == 1) {
-            register_resp->set_result(-2);
+            register_resp->set_result(-1);
             register_resp->set_msg("account exists");
             register_resp->set_errcode(o2ovender::register_resp_ERRCODE_ACCOUNT_EXISTS);
             break;
@@ -220,7 +256,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
         account_info.m_passwd = password;
         res = SDMongoDBAccountInfo::insert(mongodb, account_info);
         if (res != 1) {
-            register_resp->set_result(-3);
+            register_resp->set_result(-1);
             register_resp->set_msg("server is busy");
             register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
             break;

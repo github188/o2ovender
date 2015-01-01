@@ -29,6 +29,8 @@ protected:
     o2ovender::request m_request;
     o2ovender::response m_response;
 
+    int send_response(SDSharedSocket& socket);
+
 	static const uint32_t MAX_HTTP_HEAD_SIZE = 4096;
 	static const uint32_t MAX_HTTP_BODY_SIZE = 1024*1024;
     boost::shared_ptr<SDMongoDBHandler> m_mongodb_handler;

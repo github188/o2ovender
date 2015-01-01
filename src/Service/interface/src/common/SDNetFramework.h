@@ -11,6 +11,7 @@
 #include <common/SDActiveConnHandler.h>
 #include <common/SDThreadLock.h>
 #include <common/SDStringUtility.h>
+#include <common/SDMongoDBUtility.h>
 
 class SDNetFramework
 {

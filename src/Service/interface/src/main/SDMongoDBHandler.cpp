@@ -1,6 +1,7 @@
 #include "SDMongoDBHandler.h"
 
 #include <client/dbclient.h>
+#include <common/SDMongoDBUtility.h>
 
 using namespace std;
 
@@ -35,20 +36,7 @@ bool SDMongoDBHandler::post(SDSharedSocket& socket)
 void SDMongoDBHandler::doIt()
 {
     mongo::DBClientConnection mongodb(true);
-    string errmsg;
-    try {
-        mongodb.connect(mongo::HostAndPort(m_host, m_port), errmsg);
-        LOG4CPLUS_DEBUG (logger, "connect to MongoDB " << m_host << ":" << m_port << " succ: " << errmsg);
-    }
-    catch (mongo::DBException& e) {
-        LOG4CPLUS_ERROR (logger, "connect to MongoDB " << m_host << ":" << m_port << " fail: " << e.toString());
-    }
-    catch (std::exception& e) {
-        LOG4CPLUS_ERROR (logger, "connect to MongoDB " << m_host << ":" << m_port << " fail: " << e.what());
-    }
-    catch (...) {
-        LOG4CPLUS_ERROR (logger, "connect to MongoDB " << m_host << ":" << m_port << " fail: " << "Unknown Exception");
-    }
+    SDMongoDBUtility::connect(&mongodb, m_host, m_port);
 
     for (;;) {
         SDSharedSocket socket;

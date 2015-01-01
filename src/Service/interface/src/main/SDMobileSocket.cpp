@@ -186,22 +186,8 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
     } while(false);
         
     LOG4CPLUS_DEBUG(logger, "login_resp\n" << m_response.DebugString());
-    string data;
-    bool result = m_response.SerializeToString(&data);
-    if (!result) {
-        LOG4CPLUS_WARN(logger, "SerializeToString() fail");
-        return -1;
-    }
     
-    m_send_buf = SDSharedBuffer(new SDBuffer());
-    m_send_buf->alloc_buf(128+data.length());
-    int size = sprintf(m_send_buf->data(), "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n", (int)data.length());
-    memcpy(m_send_buf->data()+size, data.c_str(), data.length());
-    m_send_buf->m_size = size + data.length();
-
-    wait_send();
-    m_conn_handler->post(socket);
-    return 0;
+    return send_response(socket);
 }
 
 int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConnection* mongodb)
@@ -266,6 +252,12 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
     } while(false);
         
     LOG4CPLUS_DEBUG(logger, "register_resp\n" << m_response.DebugString());
+
+    return send_response(socket);
+}
+
+int SDMobileSocket::send_response(SDSharedSocket& socket)
+{
     string data;
     bool result = m_response.SerializeToString(&data);
     if (!result) {

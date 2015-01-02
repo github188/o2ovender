@@ -120,15 +120,15 @@ int SDMobileSocket::on_request(SDSharedSocket& socket, void* param)
 {
     mongo::DBClientConnection* mongodb = (mongo::DBClientConnection*)param;
     int32_t type = m_request.type();
-    if (type == 4) {
+    if (type == o2ovender::request_TYPE_LOGIN) {
         return on_login_req(socket, mongodb);
     }
-    if (type == 3) {
+    if (type == o2ovender::request_TYPE_REGISTER) {
         return on_register_req(socket, mongodb);
     }
     else {
         LOG4CPLUS_WARN(logger, "unsupport type " << type);
-        m_conn_handler->post(socket);
+        return -1;
     }
 
     return 0;
@@ -140,7 +140,7 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
     const std::string& uid = login_req.uid();
     const std::string& password = login_req.pass_word();
 
-    m_response.set_type(2);
+    m_response.set_type(o2ovender::response_TYPE_LOGIN);
     o2ovender::login_resp* login_resp = m_response.mutable_login_resp();
 
     SDAccountInfo account_info;
@@ -150,18 +150,21 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
         if (res == -1) {
             login_resp->set_result(-1);
             login_resp->set_msg("server is busy");
+            login_resp->set_errcode(o2ovender::login_resp_ERRCODE_SERVER_BUSY);
             break;
         }
 
         if (res == 0) {
-            login_resp->set_result(-2);
+            login_resp->set_result(-1);
             login_resp->set_msg("account not exists");
+            login_resp->set_errcode(o2ovender::login_resp_ERRCODE_ACCOUNT_NOT_EXISTS);
             break;
         }
         
         if (password != account_info.m_passwd) {
-            login_resp->set_result(-3);
+            login_resp->set_result(-1);
             login_resp->set_msg("password is wrong");
+            login_resp->set_errcode(o2ovender::login_resp_ERRCODE_PASSWD_WRONG);
             break;
         }
             
@@ -193,7 +196,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
     const std::string& uid = register_req.uid();
     const std::string& password = register_req.pass_word();
 
-    m_response.set_type(3);
+    m_response.set_type(o2ovender::response_TYPE_REGISTER);
     o2ovender::register_resp* register_resp = m_response.mutable_register_resp();
 
     SDAccountInfo account_info;
@@ -203,12 +206,14 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
         if (res == -1) {
             register_resp->set_result(-1);
             register_resp->set_msg("server is busy");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
             break;
         }
 
         if (res == 1) {
             register_resp->set_result(-2);
             register_resp->set_msg("account exists");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_ACCOUNT_EXISTS);
             break;
         }
        
@@ -216,7 +221,8 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
         res = SDMongoDBAccountInfo::insert(mongodb, account_info);
         if (res != 1) {
             register_resp->set_result(-3);
-            register_resp->set_msg("account exists");
+            register_resp->set_msg("server is busy");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
             break;
         }
         

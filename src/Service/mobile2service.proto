@@ -2,54 +2,82 @@ package o2ovender;
 
 option optimize_for = CODE_SIZE;
 
-// »ñµÃ¼¤»îÂë
+// è·å¾—æ¿€æ´»ç 
 message get_identifying_code_req
 {
-	required string uid = 1; // ÊÖ»úºÅÂë
+    required string uid = 1;  // æ‰‹æœºå·ç 
 };
 
-// ×¢²áÇëÇó
+// æ³¨å†Œè¯·æ±‚
 message register_req
 {
-	required string uid              = 1; // ÊÖ»úºÅÂë
-	required string pass_word        = 2; // ÃÜÂë
-	optional string identifying_code = 3; // ÑéÖ¤Âë
+    required string uid = 1;               // æ‰‹æœºå·ç 
+    required string pass_word = 2;         // å¯†ç 
+    optional string identifying_code = 3;  // éªŒè¯ç 
 };
 
-// ×¢²áÏìÓ¦
+// æ³¨å†Œå“åº”
 message register_resp
 {
-	required int32 result = 1;      // µÇÂ½½á¹û: 0³É¹¦,ÆäËüÊ§°Ü
-	optional string msg  = 2;       // Ê§°ÜÔ­Òò
+    required int32 result = 1;  // ç™»é™†ç»“æœ: 0æˆåŠŸ,å…¶å®ƒå¤±è´¥
+    optional string msg = 2;    // å¤±è´¥åŸå› 
+enum ERRCODE
+{
+    NO_ERR = 0;
+    SERVER_BUSY = 1;
+    ACCOUNT_EXISTS = 2;
+ }
+    optional ERRCODE errcode = 3 [default = NO_ERR];  // å¤±è´¥åŸå› ä»£ç 
 };
 
-// µÇÂ½ÇëÇó
+// ç™»é™†è¯·æ±‚
 message login_req
 {
-	required string uid              = 1; // ÊÖ»úºÅÂë
-	required string pass_word        = 2; // ÃÜÂë
+    required string uid = 1;        // æ‰‹æœºå·ç 
+    required string pass_word = 2;  // å¯†ç 
 };
 
-// µÇÂ½ÏìÓ¦
+// ç™»é™†å“åº”
 message login_resp
 {
-	required int32 result = 1;      // µÇÂ½½á¹û: 0³É¹¦,ÆäËüÊ§°Ü
-	optional string msg  = 2;       // Ê§°ÜÔ­Òò
+    required int32 result = 1;  // ç™»é™†ç»“æœ: 0æˆåŠŸ,å…¶å®ƒå¤±è´¥
+    optional string msg = 2;    // å¤±è´¥åŸå› 
+enum ERRCODE
+{
+    NO_ERR = 0;
+    SERVER_BUSY = 1;
+    ACCOUNT_NOT_EXISTS = 2;
+    PASSWD_WRONG = 3;
+ }
+    optional ERRCODE errcode = 3 [default = NO_ERR];  // å¤±è´¥åŸå› ä»£ç 
 };
 
-// ÇëÇó
+// è¯·æ±‚
 message request
 {
-	required int32 type         = 1;
-	optional get_identifying_code_req get_identifying_code_req = 2;
-	optional register_req register_req = 3;
-	optional login_req login_req    = 4;
+enum TYPE
+{
+    NO_TYPE = 0;
+    GET_IDENTIFYING_CODE = 1;
+    REGISTER= 2;
+    LOGIN = 3;
+}
+    required TYPE type = 1 [default = NO_TYPE];
+    optional get_identifying_code_req get_identifying_code_req = 2;
+    optional register_req register_req = 3;
+    optional login_req login_req = 4;
 };
 
-// ÏìÓ¦
+// å“åº”
 message response
 {
-	required int32 type                  = 1;
-	optional login_resp login_resp       = 2;
-	optional register_resp register_resp = 3;
+enum TYPE
+{
+    NO_TYPE = 0;
+    REGISTER= 1;
+    LOGIN = 2;
+}
+    required TYPE type = 1 [default = NO_TYPE];
+    optional login_resp login_resp = 2;
+    optional register_resp register_resp = 3;
 };

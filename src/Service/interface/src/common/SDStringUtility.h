@@ -2,6 +2,7 @@
 #define SD_STRING_UTILITY_H
 
 #include <string>
+#include <sstream>
 #include <vector>
 
 class SDStringUtility
@@ -11,6 +12,16 @@ public:
 
     static std::string str2hex(const char* buf, int size);
     static std::string get_local_datestring();
+
+    static std::string format_time(time_t unix_time);
+
+    template<class T>
+    static std::string format(T i)
+    {
+        std::ostringstream oss;
+        oss << i;
+        return oss.str();
+    }
 };
 
 #endif

@@ -12,7 +12,7 @@ public:
     std::string m_passwd;
 };
 
-class SDMongoDBAccountInfo
+class SDMongoAccountInfo
 {
 public:
     static int query(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info);

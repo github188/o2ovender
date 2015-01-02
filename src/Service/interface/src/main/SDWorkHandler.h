@@ -19,6 +19,11 @@ public:
 protected:
     DECL_LOGGER(logger);
     boost::shared_ptr<SDSocketQueue> m_queue;
+    
+    std::string m_mongo_host;
+    int m_mongo_port;
+    std::string m_redis_host;
+    int m_redis_port;
 };
 
 #endif

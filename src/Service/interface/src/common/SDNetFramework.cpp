@@ -2,6 +2,7 @@
 
 #include "SDStringUtility.h"
 #include "SDSocketFactory.h"
+#include "SDStatDumper.h"
 
 using namespace std;
 
@@ -20,7 +21,17 @@ void SDNetFramework::doConfigure(const std::string& filename)
     {
         exit(1);
     }
+
+    int queue_size = config.getInt("stat.queue.size", 100);
+    SDStatHandler::getInstance()->init(queue_size);
     
+    SDStatHandler::getInstance()->register_stat_name(Stats::Accept, "Accept");
+
+    int dump_interval = config.getInt("stat.dump.interval", 60);
+    string stat_filename = config.getString("stat.stats.filename", "");
+    string stat_queue_filename = config.getString("stat.queue.filename", "");
+    SDStatDumper::getInstance()->init(dump_interval, stat_filename.c_str(), stat_queue_filename.c_str());
+
     SDStringUtility::split(config.getString("bind"), ",", m_listen_ipv4);
     m_listen_handler = boost::shared_ptr<SDListenHandler>(new SDListenHandler());
     if (!m_listen_handler->init(m_listen_ipv4)) {
@@ -30,9 +41,9 @@ void SDNetFramework::doConfigure(const std::string& filename)
     int handler_size = config.getInt("passive.conn.handler.size", 1);
     for (int i=0; i<handler_size; i++) { 
         boost::shared_ptr<SDPassiveConnHandler> conn_handler(new SDPassiveConnHandler());
-        int max_events = config.getInt("passive.conn.handler.max.events", 100);
-        int queue_size = config.getInt("passive.conn.handler.queue.size", 100);
-        int timeout = config.getInt("passive.conn.handler.timeout", 60);
+        int max_events = config.getInt("passive.conn.max.events", 100);
+        int queue_size = config.getInt("passive.conn.queue.size", 100);
+        int timeout = config.getInt("passive.conn.timeout", 60);
         if (!conn_handler->init(max_events, queue_size, timeout)) {
             exit(1);
         }
@@ -44,9 +55,9 @@ void SDNetFramework::doConfigure(const std::string& filename)
     handler_size = config.getInt("active.conn.handler.size", 1);
     for (int i=0; i<handler_size; i++) { 
         boost::shared_ptr<SDActiveConnHandler> conn_handler(new SDActiveConnHandler());
-        int max_events = config.getInt("active.conn.handler.max.events", 100);
-        int queue_size = config.getInt("active.conn.handler.queue.size", 100);
-        int timeout = config.getInt("active.conn.handler.timeout", 3600);
+        int max_events = config.getInt("active.conn.max.events", 100);
+        int queue_size = config.getInt("active.conn.queue.size", 100);
+        int timeout = config.getInt("active.conn.timeout", 3600);
         if (!conn_handler->init(max_events, queue_size, timeout)) {
             exit(1);
         }
@@ -56,6 +67,9 @@ void SDNetFramework::doConfigure(const std::string& filename)
     
 void SDNetFramework::startThreads()
 {
+    SDStatHandler::getInstance()->startThreads();
+    SDStatDumper::getInstance()->startThreads();
+
     for (std::vector<boost::shared_ptr<SDPassiveConnHandler> >::iterator it = m_passive_conn_handler.begin(); it != m_passive_conn_handler.end(); ++it) {
         (*it)->startThreads();
     }
@@ -67,6 +81,9 @@ void SDNetFramework::startThreads()
 
 void SDNetFramework::waitThreadsTermination()
 {
+    SDStatHandler::getInstance()->waitThreadsTermination();
+    SDStatDumper::getInstance()->waitThreadsTermination();
+   
     for (std::vector<boost::shared_ptr<SDPassiveConnHandler> >::iterator it = m_passive_conn_handler.begin(); it != m_passive_conn_handler.end(); ++it) {
         (*it)->waitThreadsTermination();
     }

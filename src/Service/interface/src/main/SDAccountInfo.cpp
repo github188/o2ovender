@@ -1,22 +1,22 @@
 #include "SDAccountInfo.h"
 
-#include <common/SDMongoDBUtility.h>
+#include <common/SDMongoUtility.h>
 
 using namespace std;
 
-IMPL_LOGGER(SDMongoDBAccountInfo, logger);
+IMPL_LOGGER(SDMongoAccountInfo, logger);
 
-const string SDMongoDBAccountInfo::NS = "o2ovender.account_info";
-const string SDMongoDBAccountInfo::FIELD_UID = "_id";
-const string SDMongoDBAccountInfo::FIELD_PASSWD = "passwd";
+const string SDMongoAccountInfo::NS = "o2ovender.account_info";
+const string SDMongoAccountInfo::FIELD_UID = "_id";
+const string SDMongoAccountInfo::FIELD_PASSWD = "passwd";
 
-int SDMongoDBAccountInfo::query(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info)
+int SDMongoAccountInfo::query(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info)
 {
     const string& ns = NS;
     mongo::BSONObjBuilder builder;
     builder.appendBinData(FIELD_UID, account_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     mongo::BSONObj obj;
-    int res = SDMongoDBUtility::findone(mongodb, ns, builder.obj(), &obj);
+    int res = SDMongoUtility::findone(mongodb, ns, builder.obj(), &obj);
     LOG4CPLUS_DEBUG(logger, obj.jsonString());
     if (res == 1) {
         if (!obj.hasField(FIELD_PASSWD)) {
@@ -33,12 +33,12 @@ int SDMongoDBAccountInfo::query(mongo::DBClientConnection* mongodb, SDAccountInf
     return res;
 }
 
-int SDMongoDBAccountInfo::insert(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info)
+int SDMongoAccountInfo::insert(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info)
 {
     const string& ns = NS;
     mongo::BSONObjBuilder builder;
     builder.appendBinData(FIELD_UID, account_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     builder.appendBinData(FIELD_PASSWD, account_info.m_passwd.length(), mongo::BinDataGeneral, account_info.m_passwd.c_str());
 
-    return SDMongoDBUtility::insert(mongodb, ns, builder.obj());
+    return SDMongoUtility::insert(mongodb, ns, builder.obj());
 }

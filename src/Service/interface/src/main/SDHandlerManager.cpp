@@ -28,14 +28,12 @@ bool SDHandlerManager::init()
 void SDHandlerManager::start()
 {
     SDNetFramework::startThreads();
-    m_mongodb_handler->startThreads();
     m_work_handler->startThreads();
 }
 
 void SDHandlerManager::wait()
 {
     SDNetFramework::waitThreadsTermination();
-    m_mongodb_handler->waitThreadsTermination();
     m_work_handler->waitThreadsTermination();
 }
 
@@ -54,24 +52,17 @@ bool SDHandlerManager::init_thread()
         return false;
     }
     
-    int handler_size = m_config.getInt("mongodb.handler.count", 1);
-    m_mongodb_handler = boost::shared_ptr<SDMongoDBHandler>(new SDMongoDBHandler(handler_size));
-    if (!m_mongodb_handler->init(m_config)) {
-        return false;
-    }
-    
-    handler_size = m_config.getInt("work.handler.count", 1);
+    int handler_size = m_config.getInt("work.handler.count", 1);
     m_work_handler = boost::shared_ptr<SDWorkHandler>(new SDWorkHandler(handler_size));
     if (!m_work_handler->init(m_config)) {
         return false;
     }
     
-
     std::vector<std::string>& listen_ipv4 = SDNetFramework::m_listen_ipv4;
     for (std::vector<std::string>::iterator it = listen_ipv4.begin(); it != listen_ipv4.end(); ++it) {
         if (it->find(":80") != string::npos) {
             SDMobileSocket* socket = new SDMobileSocket();
-            socket->init(m_mongodb_handler);
+            socket->init(m_work_handler);
             SDSocketFactory::register_socket(*it, socket);       
         }
     }

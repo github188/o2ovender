@@ -12,4 +12,5 @@ TARGET_LINK_LIBRARIES(
     boost_filesystem
     boost_system
     boost_regex-mt
+    hiredis
 )

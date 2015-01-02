@@ -2,6 +2,7 @@
 #define SD_SOCKET_H
 
 #include <string>
+#include <map>
 #include <string.h>
 #include <netinet/in.h>
 #include <boost/shared_ptr.hpp>
@@ -45,7 +46,7 @@ public:
     virtual int on_recv(SDSharedSocket& socket);
     virtual int on_send(SDSharedSocket& socket);
 
-    virtual int on_request(SDSharedSocket& socket, void* param=NULL);
+    virtual int on_request(SDSharedSocket& socket, std::map<int, void*>& param);
 
     bool is_connected() const {return m_fd != -1;}
     int connect_to();

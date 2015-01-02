@@ -3,6 +3,7 @@
 #include "SDEpollUtility.h"
 #include "SDPassiveConnHandler.h"
 #include "SDSocketFactory.h"
+#include "SDStatHandler.h"
 
 #include <stdlib.h>
 
@@ -85,10 +86,12 @@ void SDListenHandler::doIt()
                 std::string remote_addr = SDSocketUtility::to_string(addr);
                 LOG4CPLUS_DEBUG(logger, "[" << local_addr << "] accept " << remote_addr << " (fd=" << cfd << ")");
                 if (SDSocketUtility::set_linger(cfd) == -1) {
+                    SDStatHandler::getInstance()->putBatchStat(Stats::Accept, false);
                     ::close(cfd);
                     continue;
                 }
                 if (SDSocketUtility::set_nonblock(cfd) == -1) {
+                    SDStatHandler::getInstance()->putBatchStat(Stats::Accept, false);
                     ::close(cfd);
                     continue;
                 }
@@ -98,10 +101,13 @@ void SDListenHandler::doIt()
                     uint32_t index = m_conn_index.get_index();
                     socket->init_conn_info(cfd, local_addr, remote_addr);
                     if (!m_conn_handler[index]->post(socket)) {
+                        SDStatHandler::getInstance()->putBatchStat(Stats::Accept, false);
                         continue;
                     }
+                    SDStatHandler::getInstance()->putBatchStat(Stats::Accept, true);
                 }
                 else {
+                    SDStatHandler::getInstance()->putBatchStat(Stats::Accept, false);
                     ::close(cfd);
                 }
             }

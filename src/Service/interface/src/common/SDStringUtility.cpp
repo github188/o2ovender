@@ -60,3 +60,20 @@ string SDStringUtility::get_local_datestring()
 
     return (string)timebuf;
 }
+
+string SDStringUtility::format_time(time_t unix_time)
+{
+    struct timezone tz;
+
+    gettimeofday(NULL, &tz);
+
+    time_t local_time = (time_t)(unix_time - tz.tz_minuteswest * 60);
+
+    struct tm lt;
+    gmtime_r(&local_time, &lt);
+
+    char timebuf[16];
+    sprintf(timebuf, "%02d:%02d:%02d", lt.tm_hour, lt.tm_min, lt.tm_sec);
+
+    return (string)timebuf;
+}

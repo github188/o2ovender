@@ -6,6 +6,9 @@ using namespace std;
 
 IMPL_LOGGER(SDMobileSocket, logger);
 
+int SDMobileSocket::MONGODB_CLI = 0;
+int SDMobileSocket::REDIS_CLI = 1;
+
 SDMobileSocket::SDMobileSocket()
 {
     m_recv_buf->alloc_buf(MAX_HTTP_HEAD_SIZE);
@@ -17,14 +20,14 @@ SDMobileSocket::~SDMobileSocket()
 SDSocket* SDMobileSocket::clone()
 {
     SDMobileSocket* new_socket = new SDMobileSocket();
-    new_socket->m_mongodb_handler = m_mongodb_handler;
+    new_socket->m_work_handler = m_work_handler;
 
     return new_socket;
 }
     
-bool SDMobileSocket::init(boost::shared_ptr<SDMongoDBHandler>& mongodb_handler)
+bool SDMobileSocket::init(boost::shared_ptr<SDWorkHandler>& work_handler)
 {
-    m_mongodb_handler = mongodb_handler;
+    m_work_handler = work_handler;
 
     return true;
 }
@@ -90,7 +93,16 @@ int SDMobileSocket::on_recv(SDSharedSocket& socket)
         }
         
         LOG4CPLUS_DEBUG(logger, "ParseFromArray " << "succ" << "\n" << m_request.DebugString());
-        if (!m_mongodb_handler->post(socket)) {
+        int32_t type = m_request.type();
+        if (type == o2ovender::request_TYPE_LOGIN
+                || type == o2ovender::request_TYPE_REGISTER
+                || type == o2ovender::request_TYPE_GET_IDENTIFYING_CODE) {
+            if (!m_work_handler->post(socket)) {
+                return -1;
+            }
+        }
+        else {
+            LOG4CPLUS_DEBUG(logger, "unsupport type " << type);
             return -1;
         }
 
@@ -116,15 +128,14 @@ int SDMobileSocket::on_send(SDSharedSocket& socket)
     return 0;
 }
 
-int SDMobileSocket::on_request(SDSharedSocket& socket, void* param)
+int SDMobileSocket::on_request(SDSharedSocket& socket, std::map<int, void*>& param)
 {
-    mongo::DBClientConnection* mongodb = (mongo::DBClientConnection*)param;
     int32_t type = m_request.type();
     if (type == o2ovender::request_TYPE_LOGIN) {
-        return on_login_req(socket, mongodb);
+        return on_login_req(socket, param);
     }
     if (type == o2ovender::request_TYPE_REGISTER) {
-        return on_register_req(socket, mongodb);
+        return on_register_req(socket, param);
     }
     else {
         LOG4CPLUS_WARN(logger, "unsupport type " << type);
@@ -134,8 +145,13 @@ int SDMobileSocket::on_request(SDSharedSocket& socket, void* param)
     return 0;
 }
 
-int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnection* mongodb)
+int SDMobileSocket::on_login_req(SDSharedSocket& socket, std::map<int, void*>& param)
 {
+    mongo::DBClientConnection* mongodb = NULL;
+    std::map<int, void*>::iterator it = param.find(MONGODB_CLI);
+    if (it!=param.end()) {
+        mongodb = (mongo::DBClientConnection*)(it->second);
+    }
     const o2ovender::login_req& login_req = m_request.login_req();
     const std::string& uid = login_req.uid();
     const std::string& password = login_req.pass_word();
@@ -146,6 +162,13 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
     SDAccountInfo account_info;
     account_info.m_uid = uid;
     do {
+        if  (mongodb == NULL) {
+            login_resp->set_result(-1);
+            login_resp->set_msg("server is busy");
+            login_resp->set_errcode(o2ovender::login_resp_ERRCODE_SERVER_BUSY);
+            break;
+        }
+        
         if  (uid.empty()) {
             login_resp->set_result(-1);
             login_resp->set_msg("no uid");
@@ -160,7 +183,7 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
             break;
         }
        
-        int res = SDMongoDBAccountInfo::query(mongodb, account_info);
+        int res = SDMongoAccountInfo::query(mongodb, account_info);
         if (res == -1) {
             login_resp->set_result(-1);
             login_resp->set_msg("server is busy");
@@ -190,8 +213,13 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnecti
     return send_response(socket);
 }
 
-int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConnection* mongodb)
+int SDMobileSocket::on_register_req(SDSharedSocket& socket, std::map<int, void*>& param)
 {
+    mongo::DBClientConnection* mongodb = NULL;
+    std::map<int, void*>::iterator it = param.find(MONGODB_CLI);
+    if (it!=param.end()) {
+        mongodb = (mongo::DBClientConnection*)(it->second);
+    }
     const o2ovender::register_req& register_req = m_request.register_req();
     const std::string& uid = register_req.uid();
     const std::string& password = register_req.pass_word();
@@ -203,6 +231,13 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
     SDAccountInfo account_info;
     account_info.m_uid = uid;
     do {
+        if  (mongodb == NULL) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("server is busy");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
+            break;
+        }
+        
         if (uid.empty()) {
             register_resp->set_result(-1);
             register_resp->set_msg("no uid");
@@ -224,7 +259,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
             break;
         }
 
-        int res = SDMongoDBAccountInfo::query(mongodb, account_info);
+        int res = SDMongoAccountInfo::query(mongodb, account_info);
         if (res == -1) {
             register_resp->set_result(-1);
             register_resp->set_msg("server is busy");
@@ -240,7 +275,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
         }
        
         account_info.m_passwd = password;
-        res = SDMongoDBAccountInfo::insert(mongodb, account_info);
+        res = SDMongoAccountInfo::insert(mongodb, account_info);
         if (res != 1) {
             register_resp->set_result(-1);
             register_resp->set_msg("server is busy");
@@ -254,6 +289,29 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConne
     LOG4CPLUS_DEBUG(logger, "register_resp\n" << m_response.DebugString());
 
     return send_response(socket);
+}
+
+int SDMobileSocket::on_identifying_code(SDSharedSocket& socket, std::map<int, void*>& param)
+{
+    SDRedisServer* redis = NULL;
+    std::map<int, void*>::iterator it = param.find(REDIS_CLI);
+    if (it!=param.end()) {
+        redis = (SDRedisServer*)(it->second);
+    }
+    const o2ovender::get_identifying_code_req& get_identifying_code_req = m_request.get_identifying_code_req();
+    const std::string& uid = get_identifying_code_req.uid();
+
+    do {
+        string code = "234532";
+        int res = redis->exists(code);
+        if (res == -1) {
+            break;
+        }
+    } while(false);
+    
+    wait_recv();
+    m_conn_handler->post(socket);
+    return 0;
 }
 
 int SDMobileSocket::send_response(SDSharedSocket& socket)

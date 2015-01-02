@@ -103,6 +103,7 @@ string SDConfiguration::getString(const char* key, const std::string& default_va
 		return it_find->m_value;
 	}
     else {
+		LOG4CPLUS_DEBUG(logger, key<<" Not Found");
         return default_value;
     }
 
@@ -120,6 +121,7 @@ int SDConfiguration::getInt(const char *key, int default_value) const
 		LOG4CPLUS_DEBUG(logger, key<<"="<<it_find->m_value);
         return atoi(it_find->m_value.c_str());
     } else {
+		LOG4CPLUS_DEBUG(logger, key<<" Not Found");
         return default_value;
     }
 

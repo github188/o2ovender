@@ -88,7 +88,7 @@ int SDSocket::on_send(SDSharedSocket& socket)
     return IO_STATE_SEND_MORE;
 }
 
-int SDSocket::on_work(SDSharedSocket& socket)
+int SDSocket::on_request(SDSharedSocket& socket, void* param)
 {
     return 0;
 }

@@ -1,5 +1,7 @@
 #include "SDMobileSocket.h"
 
+#include "SDAccountInfo.h"
+
 using namespace std;
 
 IMPL_LOGGER(SDMobileSocket, logger);
@@ -15,14 +17,14 @@ SDMobileSocket::~SDMobileSocket()
 SDSocket* SDMobileSocket::clone()
 {
     SDMobileSocket* new_socket = new SDMobileSocket();
-    new_socket->m_work_handler = m_work_handler;
+    new_socket->m_mongodb_handler = m_mongodb_handler;
 
     return new_socket;
 }
     
-bool SDMobileSocket::init(boost::shared_ptr<SDWorkHandler>& work_handler)
+bool SDMobileSocket::init(boost::shared_ptr<SDMongoDBHandler>& mongodb_handler)
 {
-    m_work_handler = work_handler;
+    m_mongodb_handler = mongodb_handler;
 
     return true;
 }
@@ -81,9 +83,17 @@ int SDMobileSocket::on_recv(SDSharedSocket& socket)
 		LOG4CPLUS_DEBUG(logger, "recv HTTP BODY done");
 		//LOG4CPLUS_DEBUG(logger, "recv HTTP BODY: " << string(body_ptr, body_length));
 
-        o2ovender::request request;
-        bool parse_result = request.ParseFromArray(body_ptr, body_length);
-		LOG4CPLUS_DEBUG(logger, "ParseFromArray " << (parse_result ? "true" : "false") << "\n" << request.DebugString());
+        bool parse_result = m_request.ParseFromArray(body_ptr, body_length);
+        if (!parse_result) {
+		    LOG4CPLUS_DEBUG(logger, "ParseFromArray " << "fail");
+            return -1;
+        }
+        
+        LOG4CPLUS_DEBUG(logger, "ParseFromArray " << "succ" << "\n" << m_request.DebugString());
+        if (!m_mongodb_handler->post(socket)) {
+            return -1;
+        }
+
         return 0;
     }
     else {
@@ -106,12 +116,128 @@ int SDMobileSocket::on_send(SDSharedSocket& socket)
     return 0;
 }
 
-int SDMobileSocket::on_work(SDSharedSocket& socket)
+int SDMobileSocket::on_request(SDSharedSocket& socket, void* param)
 {
-    m_send_buf->alloc_buf(m_recv_buf->length());
-    memcpy(m_send_buf->data(), m_recv_buf->data(), m_recv_buf->length());
+    mongo::DBClientConnection* mongodb = (mongo::DBClientConnection*)param;
+    int32_t type = m_request.type();
+    if (type == 4) {
+        return on_login_req(socket, mongodb);
+    }
+    if (type == 3) {
+        return on_register_req(socket, mongodb);
+    }
+    else {
+        LOG4CPLUS_WARN(logger, "unsupport type " << type);
+        m_conn_handler->post(socket);
+    }
+
+    return 0;
+}
+
+int SDMobileSocket::on_login_req(SDSharedSocket& socket, mongo::DBClientConnection* mongodb)
+{
+    const o2ovender::login_req& login_req = m_request.login_req();
+    const std::string& uid = login_req.uid();
+    const std::string& password = login_req.pass_word();
+
+    m_response.set_type(2);
+    o2ovender::login_resp* login_resp = m_response.mutable_login_resp();
+
+    SDAccountInfo account_info;
+    account_info.m_uid = uid;
+    do {
+        int res = SDMongoDBAccountInfo::query(mongodb, account_info);
+        if (res == -1) {
+            login_resp->set_result(-1);
+            login_resp->set_msg("server is busy");
+            break;
+        }
+
+        if (res == 0) {
+            login_resp->set_result(-2);
+            login_resp->set_msg("account not exists");
+            break;
+        }
+        
+        if (password != account_info.m_passwd) {
+            login_resp->set_result(-3);
+            login_resp->set_msg("password is wrong");
+            break;
+        }
+            
+        login_resp->set_result(0);
+    } while(false);
+        
+    LOG4CPLUS_DEBUG(logger, "login_resp\n" << m_response.DebugString());
+    string data;
+    bool result = m_response.SerializeToString(&data);
+    if (!result) {
+        LOG4CPLUS_WARN(logger, "SerializeToString() fail");
+        return -1;
+    }
+    
+    m_send_buf = SDSharedBuffer(new SDBuffer());
+    m_send_buf->alloc_buf(128+data.length());
+    int size = sprintf(m_send_buf->data(), "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n", (int)data.length());
+    memcpy(m_send_buf->data()+size, data.c_str(), data.length());
+    m_send_buf->m_size = size + data.length();
+
     wait_send();
     m_conn_handler->post(socket);
+    return 0;
+}
 
+int SDMobileSocket::on_register_req(SDSharedSocket& socket, mongo::DBClientConnection* mongodb)
+{
+    const o2ovender::register_req& register_req = m_request.register_req();
+    const std::string& uid = register_req.uid();
+    const std::string& password = register_req.pass_word();
+
+    m_response.set_type(3);
+    o2ovender::register_resp* register_resp = m_response.mutable_register_resp();
+
+    SDAccountInfo account_info;
+    account_info.m_uid = uid;
+    do {
+        int res = SDMongoDBAccountInfo::query(mongodb, account_info);
+        if (res == -1) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("server is busy");
+            break;
+        }
+
+        if (res == 1) {
+            register_resp->set_result(-2);
+            register_resp->set_msg("account exists");
+            break;
+        }
+       
+        account_info.m_passwd = password;
+        res = SDMongoDBAccountInfo::insert(mongodb, account_info);
+        if (res != 1) {
+            register_resp->set_result(-3);
+            register_resp->set_msg("account exists");
+            break;
+        }
+        
+        register_resp->set_result(0);
+    } while(false);
+        
+    LOG4CPLUS_DEBUG(logger, "register_resp\n" << m_response.DebugString());
+    string data;
+    bool result = m_response.SerializeToString(&data);
+    if (!result) {
+        LOG4CPLUS_WARN(logger, "SerializeToString() fail");
+        return -1;
+    }
+    
+    m_send_buf = SDSharedBuffer(new SDBuffer());
+    m_send_buf->alloc_buf(128+data.length());
+    int size = sprintf(m_send_buf->data(), "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n", (int)data.length());
+    memcpy(m_send_buf->data()+size, data.c_str(), data.length());
+    m_send_buf->m_size = size + data.length();
+
+    wait_send();
+    m_conn_handler->post(socket);
     return 0;
 }

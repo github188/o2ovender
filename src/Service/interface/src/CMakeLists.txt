@@ -2,12 +2,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 PROJECT(INTERFACE)
 
+INCLUDE_DIRECTORIES(/home/root1/boost_1_51_0/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(/home/root1/log4cplus-1.0.3-rc1/include/)
+INCLUDE_DIRECTORIES(/home/root1/mongo-cxx-driver/include/)
+INCLUDE_DIRECTORIES(/home/root1/mongo-cxx-driver/include/mongo/)
 
+LINK_DIRECTORIES(/home/root1/boost_1_51_0/lib/)
 LINK_DIRECTORIES(${PROJECT_BINARY_DIR}/lib)
-LINK_DIRECTORIES(/usr/local/lib/)
 LINK_DIRECTORIES(/home/root1/log4cplus-1.0.3-rc1/lib/)
+LINK_DIRECTORIES(/home/root1/mongo-cxx-driver/lib/)
 
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)

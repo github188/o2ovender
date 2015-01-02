@@ -28,12 +28,14 @@ bool SDHandlerManager::init()
 void SDHandlerManager::start()
 {
     SDNetFramework::startThreads();
+    m_mongodb_handler->startThreads();
     m_work_handler->startThreads();
 }
 
 void SDHandlerManager::wait()
 {
     SDNetFramework::waitThreadsTermination();
+    m_mongodb_handler->waitThreadsTermination();
     m_work_handler->waitThreadsTermination();
 }
 
@@ -45,9 +47,21 @@ bool SDHandlerManager::init_queue()
 bool SDHandlerManager::init_thread()
 {
     SDNetFramework::doConfigure("../conf/netframework.conf");
+
+    mongo::Status status = mongo::client::initialize();
+    if ( !status.isOK() ) {
+        LOG4CPLUS_FATAL(logger, "failed to initialize the client driver: " << status.toString() );
+        return false;
+    }
     
-    int work_handler_size = m_config.getInt("work.handler.count", 1);
-    m_work_handler = boost::shared_ptr<SDWorkHandler>(new SDWorkHandler(work_handler_size));
+    int handler_size = m_config.getInt("mongodb.handler.count", 1);
+    m_mongodb_handler = boost::shared_ptr<SDMongoDBHandler>(new SDMongoDBHandler(handler_size));
+    if (!m_mongodb_handler->init(m_config)) {
+        return false;
+    }
+    
+    handler_size = m_config.getInt("work.handler.count", 1);
+    m_work_handler = boost::shared_ptr<SDWorkHandler>(new SDWorkHandler(handler_size));
     if (!m_work_handler->init(m_config)) {
         return false;
     }
@@ -57,7 +71,7 @@ bool SDHandlerManager::init_thread()
     for (std::vector<std::string>::iterator it = listen_ipv4.begin(); it != listen_ipv4.end(); ++it) {
         if (it->find(":80") != string::npos) {
             SDMobileSocket* socket = new SDMobileSocket();
-            socket->init(m_work_handler);
+            socket->init(m_mongodb_handler);
             SDSocketFactory::register_socket(*it, socket);       
         }
     }

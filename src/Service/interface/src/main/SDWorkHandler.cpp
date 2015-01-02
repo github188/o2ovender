@@ -42,6 +42,6 @@ void SDWorkHandler::doIt()
         
         LOG4CPLUS_DEBUG(logger, "pop() " << socket->m_fd);
         socket->reset_state();
-        socket->on_work(socket);
+        socket->on_request(socket);
     }
 }

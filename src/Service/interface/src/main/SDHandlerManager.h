@@ -7,6 +7,7 @@
 #include <common/SDLogger.h>
 #include <common/SDConfiguration.h>
 
+#include "SDMongoDBHandler.h"
 #include "SDWorkHandler.h"
 
 class SDHandlerManager
@@ -29,6 +30,7 @@ private:
     std::string m_conf_file;
     SDConfiguration m_config;
 
+    boost::shared_ptr<SDMongoDBHandler> m_mongodb_handler;
     boost::shared_ptr<SDWorkHandler> m_work_handler;
 };
 

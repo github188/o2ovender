@@ -7,4 +7,9 @@ TARGET_LINK_LIBRARIES(
     liblog4cplus.a
     pthread rt
     /usr/local/lib/libprotobuf.a
+    mongoclient
+    boost_thread
+    boost_filesystem
+    boost_system
+    boost_regex-mt
 )

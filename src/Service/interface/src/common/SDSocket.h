@@ -45,7 +45,7 @@ public:
     virtual int on_recv(SDSharedSocket& socket);
     virtual int on_send(SDSharedSocket& socket);
 
-    virtual int on_work(SDSharedSocket& socket);
+    virtual int on_request(SDSharedSocket& socket, void* param=NULL);
 
     bool is_connected() const {return m_fd != -1;}
     int connect_to();

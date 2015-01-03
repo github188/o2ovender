@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <openssl/md5.h>
 
 class SDStringUtility
 {
@@ -22,6 +23,8 @@ public:
         oss << i;
         return oss.str();
     }
+
+    static std::string md5_32(const std::string& str);
 };
 
 #endif

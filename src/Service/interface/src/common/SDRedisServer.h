@@ -18,6 +18,7 @@ public:
     int select(int db);
     int exists(const std::string& key);
     int set(const std::string& key, const std::string& value, int timeout=0);
+    int get(const std::string& key, std::string* value);
     int del(const std::string& key);
 
 private:

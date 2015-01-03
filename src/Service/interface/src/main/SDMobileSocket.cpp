@@ -1,6 +1,8 @@
 #include "SDMobileSocket.h"
-
+#include <common/SDCharacterSetConversion.h>
 #include "SDAccountInfo.h"
+#include "SDCommodityInfo.h"
+#include "SDSMSClient.h"
 
 using namespace std;
 
@@ -93,16 +95,8 @@ int SDMobileSocket::on_recv(SDSharedSocket& socket)
         }
         
         LOG4CPLUS_DEBUG(logger, "ParseFromArray " << "succ" << "\n" << m_request.DebugString());
-        int32_t type = m_request.type();
-        if (type == o2ovender::request_TYPE_LOGIN
-                || type == o2ovender::request_TYPE_REGISTER
-                || type == o2ovender::request_TYPE_GET_IDENTIFYING_CODE) {
-            if (!m_work_handler->post(socket)) {
-                return -1;
-            }
-        }
-        else {
-            LOG4CPLUS_DEBUG(logger, "unsupport type " << type);
+        //int32_t type = m_request.type();
+        if (!m_work_handler->post(socket)) {
             return -1;
         }
 
@@ -134,8 +128,14 @@ int SDMobileSocket::on_request(SDSharedSocket& socket, std::map<int, void*>& par
     if (type == o2ovender::request_TYPE_LOGIN) {
         return on_login_req(socket, param);
     }
-    if (type == o2ovender::request_TYPE_REGISTER) {
+    else if (type == o2ovender::request_TYPE_REGISTER) {
         return on_register_req(socket, param);
+    }
+    else if (type == o2ovender::request_TYPE_GET_IDENTIFYING_CODE) {
+        return on_identifying_code(socket, param);
+    }
+    else if (type == o2ovender::request_TYPE_COMMODITY_LIST) {
+        return on_commodity_list(socket, param);
     }
     else {
         LOG4CPLUS_WARN(logger, "unsupport type " << type);
@@ -162,21 +162,21 @@ int SDMobileSocket::on_login_req(SDSharedSocket& socket, std::map<int, void*>& p
     SDAccountInfo account_info;
     account_info.m_uid = uid;
     do {
-        if  (mongodb == NULL) {
+        if (mongodb == NULL) {
             login_resp->set_result(-1);
             login_resp->set_msg("server is busy");
             login_resp->set_errcode(o2ovender::login_resp_ERRCODE_SERVER_BUSY);
             break;
         }
         
-        if  (uid.empty()) {
+        if (uid.empty()) {
             login_resp->set_result(-1);
             login_resp->set_msg("no uid");
             login_resp->set_errcode(o2ovender::login_resp_ERRCODE_ACCOUNT_EMPTY);
             break;
         }
         
-        if  (password.empty()) {
+        if (password.empty()) {
             login_resp->set_result(-1);
             login_resp->set_msg("no password");
             login_resp->set_errcode(o2ovender::login_resp_ERRCODE_PASSWD_EMPTY);
@@ -220,6 +220,11 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, std::map<int, void*>
     if (it!=param.end()) {
         mongodb = (mongo::DBClientConnection*)(it->second);
     }
+    SDRedisServer* redis = NULL;
+    it = param.find(REDIS_CLI);
+    if (it!=param.end()) {
+        redis = (SDRedisServer*)(it->second);
+    }
     const o2ovender::register_req& register_req = m_request.register_req();
     const std::string& uid = register_req.uid();
     const std::string& password = register_req.pass_word();
@@ -231,7 +236,14 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, std::map<int, void*>
     SDAccountInfo account_info;
     account_info.m_uid = uid;
     do {
-        if  (mongodb == NULL) {
+        if (mongodb == NULL) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("server is busy");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
+            break;
+        }
+        
+        if (redis == NULL) {
             register_resp->set_result(-1);
             register_resp->set_msg("server is busy");
             register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
@@ -273,6 +285,23 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, std::map<int, void*>
             register_resp->set_errcode(o2ovender::register_resp_ERRCODE_ACCOUNT_EXISTS);
             break;
         }
+           
+        string key("code:");
+        key += uid;
+        string value;
+        res = redis->get(key, &value);
+        if (res == -1) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("server is busy");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_SERVER_BUSY);
+            break;
+        }
+        else if (identifying_code != value) {
+            register_resp->set_result(-1);
+            register_resp->set_msg("ientifying code is wrong");
+            register_resp->set_errcode(o2ovender::register_resp_ERRCODE_IDCODE_WRONG);
+            break;
+        }
        
         account_info.m_passwd = password;
         res = SDMongoAccountInfo::insert(mongodb, account_info);
@@ -283,6 +312,7 @@ int SDMobileSocket::on_register_req(SDSharedSocket& socket, std::map<int, void*>
             break;
         }
         
+        redis->del(key);
         register_resp->set_result(0);
     } while(false);
         
@@ -301,18 +331,104 @@ int SDMobileSocket::on_identifying_code(SDSharedSocket& socket, std::map<int, vo
     const o2ovender::get_identifying_code_req& get_identifying_code_req = m_request.get_identifying_code_req();
     const std::string& uid = get_identifying_code_req.uid();
 
+    char buf[1024] = {'\0'};
     do {
-        string code = "234532";
-        int res = redis->exists(code);
+        if (redis == NULL) {
+            LOG4CPLUS_DEBUG(logger, "server is busy");
+            break;
+        }
+        
+        if (uid.empty()) {
+            LOG4CPLUS_DEBUG(logger, "no uid");
+            break;
+        }
+        
+        string key("code:");
+        key += uid;
+        string code;
+        int res = redis->get(key, &code);
         if (res == -1) {
             break;
         }
+      
+        if (code.empty()) {
+            uint32_t c = (uint32_t)(socket->m_seq%1000000);
+            sprintf(buf, "%06u", c);
+            code = buf;
+            LOG4CPLUS_DEBUG(logger, "new code: " << code);
+
+            res = redis->set(key, code, 1800);
+            if (res != 0) {
+                break;
+            }
+        }
+        else {
+            LOG4CPLUS_DEBUG(logger, "old code: " << code);
+        }
+           
+        //SDCharacterSetConversion conv("gbk", "utf8");
+        sprintf(buf, "注册验证码：%s，三十分钟内有效，请尽快完成注册。【便利超人】", code.c_str());
+        //string content = conv.Conversion(buf, strlen(buf));
+        string content(buf);
+        LOG4CPLUS_DEBUG(logger, "sms: " << content);
+
+        SDSMSClient sms_cli;
+        res = sms_cli.send_sms(uid, content);
+
     } while(false);
     
     wait_recv();
     m_conn_handler->post(socket);
     return 0;
 }
+
+int SDMobileSocket::on_commodity_list(SDSharedSocket& socket, std::map<int, void*>& param)
+{
+    mongo::DBClientConnection* mongodb = NULL;
+    std::map<int, void*>::iterator it = param.find(MONGODB_CLI);
+    if (it!=param.end()) {
+        mongodb = (mongo::DBClientConnection*)(it->second);
+    }
+    m_response.set_type(o2ovender::response_TYPE_COMMODITY_LIST);
+    o2ovender::commodity_list_resp* commodity_list_resp = m_response.mutable_commodity_list_resp();
+
+    do {
+        if (mongodb == NULL) {
+            commodity_list_resp->set_result(-1);
+            commodity_list_resp->set_msg("server is busy");
+            commodity_list_resp->set_errcode(o2ovender::commodity_list_resp_ERRCODE_SERVER_BUSY);
+            break;
+        }
+
+        std::vector<SDCommodityInfo> commodity_list;
+        int res = SDMongoCommodityInfo::list_all(mongodb, commodity_list);
+        if (res < 0) {
+            commodity_list_resp->set_result(-1);
+            commodity_list_resp->set_msg("server is busy");
+            commodity_list_resp->set_errcode(o2ovender::commodity_list_resp_ERRCODE_SERVER_BUSY);
+            break;
+        }
+       
+        for (unsigned i=0; i<commodity_list.size(); ++i) {
+            const SDCommodityInfo& commodity_info = commodity_list[i];
+            o2ovender::commodity_info* commodity_info_resp = commodity_list_resp->add_commodity_info();
+
+            commodity_info_resp->set_id(commodity_info.m_id);
+            commodity_info_resp->set_type(commodity_info.m_type);
+            commodity_info_resp->set_code(commodity_info.m_code);
+            commodity_info_resp->set_name(commodity_info.m_name);
+            commodity_info_resp->set_img(commodity_info.m_img);
+            commodity_info_resp->set_price(commodity_info.m_price);
+            commodity_info_resp->set_discount(commodity_info.m_discount);
+        }
+        commodity_list_resp->set_result(0);
+    } while(false);
+        
+    LOG4CPLUS_DEBUG(logger, "commodity_list_resp\n" << m_response.DebugString());
+    
+    return send_response(socket);
+}
+
 
 int SDMobileSocket::send_response(SDSharedSocket& socket)
 {
@@ -324,8 +440,8 @@ int SDMobileSocket::send_response(SDSharedSocket& socket)
     }
     
     m_send_buf = SDSharedBuffer(new SDBuffer());
-    m_send_buf->alloc_buf(128+data.length());
-    int size = sprintf(m_send_buf->data(), "HTTP/1.0 200 OK\r\nContent-Length: %d\r\n\r\n", (int)data.length());
+    m_send_buf->alloc_buf(256+data.length());
+    int size = sprintf(m_send_buf->data(), "HTTP/1.1 200 OK\r\nContent-Length: %d\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n", (int)data.length());
     memcpy(m_send_buf->data()+size, data.c_str(), data.length());
     m_send_buf->m_size = size + data.length();
 

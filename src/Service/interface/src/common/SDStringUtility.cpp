@@ -37,7 +37,7 @@ string SDStringUtility::str2hex(const char * buf,int size)
     const char * buffer = buf;
     int buffer_size = size;
     for (int i = 0 ;i < buffer_size; i++) {
-        sprintf(tmpbuf,"%02X",(unsigned char)buffer[i]);        
+        sprintf(tmpbuf,"%02x",(unsigned char)buffer[i]);        
         ret_str += tmpbuf;
     }
 
@@ -76,4 +76,11 @@ string SDStringUtility::format_time(time_t unix_time)
     sprintf(timebuf, "%02d:%02d:%02d", lt.tm_hour, lt.tm_min, lt.tm_sec);
 
     return (string)timebuf;
+}
+
+std::string SDStringUtility::md5_32(const std::string& str)
+{
+    unsigned char md[MD5_DIGEST_LENGTH] = {0};
+    MD5((const unsigned char*)str.c_str(), (unsigned long)str.length(), md);
+    return str2hex((const char*)md, MD5_DIGEST_LENGTH);
 }

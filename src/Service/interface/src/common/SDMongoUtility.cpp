@@ -12,11 +12,11 @@ int SDMongoUtility::connect(mongo::DBClientConnection* mongodb, const std::strin
     try {
         mongodb->connect(mongo::HostAndPort(host, port), errmsg);
    
-        LOG4CPLUS_DEBUG (logger, "connect to Mongo " << host << ":" << port << " succ");
+        LOG4CPLUS_DEBUG(logger, "connect to Mongo " << host << ":" << port << " succ");
         res = 0;
     }
     catch (mongo::DBException& e) {
-        LOG4CPLUS_ERROR (logger, "connect to Mongo " << host << ":" << port << " fail: " << e.toString());
+        LOG4CPLUS_ERROR(logger, "connect to Mongo " << host << ":" << port << " fail: " << e.toString());
         res = -1;
     }
 
@@ -62,6 +62,31 @@ int SDMongoUtility::findone(mongo::DBClientConnection* mongodb, const std::strin
         else {
             res = 1;
         }
+    }
+    catch (mongo::DBException& e){
+        LOG4CPLUS_ERROR(logger, "query Mongo fail: " << e.toString());
+        res = -1;
+    }
+
+    return res;
+}
+
+int SDMongoUtility::findall(mongo::DBClientConnection* mongodb, const std::string& ns, const mongo::BSONObj& obj, std::vector<mongo::BSONObj>* robj)
+{
+    int res = -1;
+
+    try {
+        std::auto_ptr<mongo::DBClientCursor> cursor = mongodb->query(ns, obj);
+        if (!cursor.get()) {
+            LOG4CPLUS_DEBUG(logger, "query Mongo fail");
+            res = -1;
+        }
+
+        while (cursor->more()) {
+            robj->push_back(cursor->next());
+        }
+        res = robj->size();
+        LOG4CPLUS_DEBUG(logger, "query Mongo succ: total " << res << " records");
     }
     catch (mongo::DBException& e){
         LOG4CPLUS_ERROR(logger, "query Mongo fail: " << e.toString());

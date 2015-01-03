@@ -25,6 +25,7 @@ public:
     int on_login_req(SDSharedSocket& socket, std::map<int, void*>& param);
     int on_register_req(SDSharedSocket& socket, std::map<int, void*>& param);
     int on_identifying_code(SDSharedSocket& socket, std::map<int, void*>& param);
+    int on_commodity_list(SDSharedSocket& socket, std::map<int, void*>& param);
     
     virtual SDSocket* clone();
 

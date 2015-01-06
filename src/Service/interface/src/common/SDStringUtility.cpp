@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sstream>
 
 using namespace std;
 
@@ -83,4 +84,19 @@ std::string SDStringUtility::md5_32(const std::string& str)
     unsigned char md[MD5_DIGEST_LENGTH] = {0};
     MD5((const unsigned char*)str.c_str(), (unsigned long)str.length(), md);
     return str2hex((const char*)md, MD5_DIGEST_LENGTH);
+}
+    
+std::string SDStringUtility::passive_conn_key_encode(uint32_t index, uint64_t checksum)
+{
+    ostringstream oss;
+    static const char c = ':';
+    oss << index << c << checksum;
+    return oss.str();
+}
+
+void SDStringUtility::passive_conn_key_decode(const std::string& key, uint32_t* index, uint64_t* checksum)
+{
+    istringstream iss(key);
+    char c;
+    iss >> (*index) >> c >> (*checksum);
 }

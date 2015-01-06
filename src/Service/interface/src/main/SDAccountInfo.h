@@ -3,7 +3,7 @@
 
 #include <string>
 #include <common/SDLogger.h>
-#include <client/dbclient.h>
+#include "SDMongoClient.h"
 
 class SDAccountInfo
 {
@@ -15,8 +15,8 @@ public:
 class SDMongoAccountInfo
 {
 public:
-    static int query(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info);
-    static int insert(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info);
+    static int query(SDMongoClient* mongodb, SDAccountInfo& account_info);
+    static int insert(SDMongoClient* mongodb, SDAccountInfo& account_info);
 
 private:
     static const std::string NS;

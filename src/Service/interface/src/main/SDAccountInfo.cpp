@@ -1,7 +1,5 @@
 #include "SDAccountInfo.h"
 
-#include <common/SDMongoUtility.h>
-
 using namespace std;
 
 IMPL_LOGGER(SDMongoAccountInfo, logger);
@@ -10,14 +8,14 @@ const string SDMongoAccountInfo::NS = "o2ovender.account_info";
 const string SDMongoAccountInfo::FIELD_UID = "_id";
 const string SDMongoAccountInfo::FIELD_PASSWD = "passwd";
 
-int SDMongoAccountInfo::query(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info)
+int SDMongoAccountInfo::query(SDMongoClient* mongodb, SDAccountInfo& account_info)
 {
     const string& ns = NS;
     mongo::BSONObjBuilder builder;
     //builder.appendBinData(FIELD_UID, account_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     builder.append(FIELD_UID, account_info.m_uid);
     mongo::BSONObj obj;
-    int res = SDMongoUtility::findone(mongodb, ns, builder.obj(), &obj);
+    int res = mongodb->findone(ns, builder.obj(), &obj);
     LOG4CPLUS_DEBUG(logger, obj.jsonString());
     if (res == 1) {
         if (!obj.hasField(FIELD_PASSWD)) {
@@ -36,7 +34,7 @@ int SDMongoAccountInfo::query(mongo::DBClientConnection* mongodb, SDAccountInfo&
     return res;
 }
 
-int SDMongoAccountInfo::insert(mongo::DBClientConnection* mongodb, SDAccountInfo& account_info)
+int SDMongoAccountInfo::insert(SDMongoClient* mongodb, SDAccountInfo& account_info)
 {
     const string& ns = NS;
     mongo::BSONObjBuilder builder;
@@ -45,5 +43,5 @@ int SDMongoAccountInfo::insert(mongo::DBClientConnection* mongodb, SDAccountInfo
     //builder.appendBinData(FIELD_UID, account_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     //builder.appendBinData(FIELD_PASSWD, account_info.m_passwd.length(), mongo::BinDataGeneral, account_info.m_passwd.c_str());
 
-    return SDMongoUtility::insert(mongodb, ns, builder.obj());
+    return mongodb->insert(ns, builder.obj());
 }

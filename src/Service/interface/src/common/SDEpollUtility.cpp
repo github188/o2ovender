@@ -47,6 +47,35 @@ int SDEpollUtility::add_write_event(int efd, int fd)
     return 0;
 }
 
+int SDEpollUtility::mod_read_event(int efd, int fd)
+{
+    struct epoll_event ev;
+    ev.data.fd = fd;   
+    //ev.events = EPOLLIN | EPOLLET;
+    ev.events = EPOLLIN;
+
+    if (epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) == -1) {
+        LOG4CPLUS_WARN(logger, "epoll_ctl(MOD-READ) fail " << errno << ":" << strerror(errno));
+        return -1;
+    }
+
+    return 0;
+}
+
+int SDEpollUtility::mod_write_event(int efd, int fd)
+{
+    struct epoll_event ev;
+    ev.data.fd = fd;   
+    //ev.events = EPOLLOUT | EPOLLET;
+    ev.events = EPOLLOUT;
+
+    if (epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) == -1) {
+        LOG4CPLUS_WARN(logger, "epoll_ctl(MOD-WRITE) fail " << errno << ":" << strerror(errno));
+        return -1;
+    }
+
+    return 0;
+}
 int SDEpollUtility::del_event(int efd, int fd)
 {
     struct epoll_event ev;

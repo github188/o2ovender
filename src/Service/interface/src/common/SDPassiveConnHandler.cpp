@@ -1,6 +1,7 @@
 #include "SDPassiveConnHandler.h"
 
 #include "SDSocketUtility.h"
+#include "SDStringUtility.h"
 
 using namespace std;
 
@@ -9,7 +10,7 @@ IMPL_LOGGER(SDPassiveConnHandler, logger);
 SDPassiveConnHandler::SDPassiveConnHandler()
 {
     m_total_sockets = 0;
-    m_seq = 0;
+    m_checksum = 0;
 }
 
 SDPassiveConnHandler::~SDPassiveConnHandler()
@@ -69,9 +70,9 @@ bool SDPassiveConnHandler::post(SDSharedSocket& socket)
     return true;
 }
 
-bool SDPassiveConnHandler::post(SDSharedBuffer& socket)
+bool SDPassiveConnHandler::post(SDSharedBuffer& buff)
 {
-    if (!m_buffer_queue->push_nonblock(socket)) {
+    if (!m_buffer_queue->push_nonblock(buff)) {
         LOG4CPLUS_WARN(logger, "push() fail: queue size=" << m_buffer_queue->getCapacity());
         return false;
     }
@@ -121,6 +122,22 @@ void SDPassiveConnHandler::add_write_event(SDSharedSocket& socket)
     }
 }
 
+void SDPassiveConnHandler::mod_read_event(SDSharedSocket& socket)
+{
+    if (SDEpollUtility::mod_read_event(m_efd, socket->m_fd) == 0) {
+        socket->m_state = IO_STATE_IN_EPOLL;
+        LOG4CPLUS_DEBUG(logger, "fd:" << socket->m_fd << " enter READ mode");
+    }
+}
+
+void SDPassiveConnHandler::mod_write_event(SDSharedSocket& socket)
+{
+    if (SDEpollUtility::mod_write_event(m_efd, socket->m_fd) == 0) {
+        socket->m_state = IO_STATE_IN_EPOLL;
+        LOG4CPLUS_DEBUG(logger, "fd:" << socket->m_fd << " enter WRITE mode");
+    }
+}
+
 int SDPassiveConnHandler::del_event(int fd)
 {
     static SDSharedSocket null_socket;
@@ -142,14 +159,8 @@ void SDPassiveConnHandler::process_socket_notify()
 
         LOG4CPLUS_DEBUG(logger, "add fd:" << socket->m_fd);
         socket->m_conn_handler = this;
-        socket->m_seq = ++m_seq;
-        if (socket->get_state() == IO_STATE_RECV_MORE) {
-            //add_read_event(socket);
-            process_recv(socket);
-        }
-        else {
-            process_send(socket);
-        }
+        socket->m_checksum = ++m_checksum;
+        add_read_event(socket);
     }
 }
 
@@ -165,12 +176,16 @@ void SDPassiveConnHandler::process_buffer_notify()
         LOG4CPLUS_DEBUG(logger, "add key:" << buff->m_ipv4);
         string::size_type pos = buff->m_ipv4.find(':');
         if (pos != string::npos) {
-            uint32_t index = (uint32_t)atoi(buff->m_ipv4.substr(0,pos).c_str());
-            uint64_t seq = (uint64_t)atoll(buff->m_ipv4.substr(pos+1).c_str());
+            uint32_t index = 0;
+            uint64_t checksum = 0;
+            SDStringUtility::passive_conn_key_decode(buff->m_ipv4, &index, &checksum);
             if (index < (uint32_t)m_maxevents) {
                 SDSharedSocket& socket = m_socket_list[index];
                 if (socket.get()) {
-                    if (socket->m_seq == seq) {
+                    if (socket->m_checksum == checksum) {
+                        if (socket->m_send_buf_queue == NULL) {
+                            socket->m_send_buf_queue = new SDBufferQueue(10000);
+                        }
                         if (socket->m_send_buf_queue->push_nonblock(buff)) {
                             process_send(socket);
                         }
@@ -179,7 +194,7 @@ void SDPassiveConnHandler::process_buffer_notify()
                         }
                     }
                     else {
-                        LOG4CPLUS_WARN(logger, "no key " << buff->m_ipv4);
+                        LOG4CPLUS_WARN(logger, "no key " << buff->m_ipv4 << "(" << index << ":" << socket->m_checksum << ")");
                     }
                 }
                 else {
@@ -225,16 +240,20 @@ void SDPassiveConnHandler::process_recv(SDSharedSocket& socket)
         int state = socket->on_recv(socket);
         LOG4CPLUS_DEBUG(logger, "on_recv(fd:" << fd << ") return " << state);
         if (state == IO_STATE_RECV_MORE) {
-            add_read_event(socket);
+            process_recv(socket);
         }
         else if (state == IO_STATE_SEND_MORE) {
-            process_send(socket);
+            mod_write_event(socket);
+        }
+        else {
+            del_event(fd);
         }
     }
     else if (recv_bytes < 0) {
+        del_event(fd);
     }
     else {
-        add_read_event(socket);
+        //add_read_event(socket);
     }
 }
 
@@ -247,16 +266,20 @@ void SDPassiveConnHandler::process_send(SDSharedSocket& socket)
         int state = socket->on_send(socket);
         LOG4CPLUS_DEBUG(logger, "on_send(fd:" << fd << ") return " << state);
         if (state == IO_STATE_RECV_MORE) {
-            add_read_event(socket);
+            mod_read_event(socket);
         }
         else if (state == IO_STATE_SEND_MORE) {
             process_send(socket);
         }
+        else {
+            del_event(fd);
+        }
     }
     else if (send_bytes < 0) {
+        del_event(fd);
     }
     else {
-        add_write_event(socket);
+        //add_write_event(socket);
     }
 }
     
@@ -264,8 +287,8 @@ void SDPassiveConnHandler::doIt()
 {
     LOG4CPLUS_DEBUG(logger, "start thread");
     int timeout = 1 * 1000;
-    m_seq = ((uint64_t)pthread_self() << 32) + (uint32_t)rand();
-    LOG4CPLUS_DEBUG(logger, "seq = " << m_seq);
+    m_checksum = ((uint64_t)pthread_self() << 32) + (uint32_t)rand();
+    LOG4CPLUS_DEBUG(logger, "checksum= " << m_checksum);
     
     static SDSharedSocket null_socket;
     for (;;) {
@@ -284,13 +307,15 @@ void SDPassiveConnHandler::doIt()
             else {
                 SDSharedSocket socket = m_socket_list[fd];
            
-                if (del_event(fd) == 0) {
-                    if (SDEpollUtility::is_read_event(ev)) {
-                        process_recv(socket);
-                    }
-                    else if (SDEpollUtility::is_write_event(ev)) {
-                        process_send(socket);
-                    }
+                if (SDEpollUtility::is_read_event(ev)) {
+                    process_recv(socket);
+                }
+                else if (SDEpollUtility::is_write_event(ev)) {
+                    process_send(socket);
+                }
+                else {
+                    LOG4CPLUS_WARN(logger, "fd:" << fd << " err event " << ev.events);
+                    del_event(fd);
                 }
             }
         }

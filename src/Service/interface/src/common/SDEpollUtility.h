@@ -11,6 +11,8 @@ public:
     static int create_epoll(int size);
     static int add_read_event(int efd, int fd);
     static int add_write_event(int efd, int fd);
+    static int mod_read_event(int efd, int fd);
+    static int mod_write_event(int efd, int fd);
     static int del_event(int efd, int fd);
     static int wait(int efd, struct epoll_event* events, int maxevents, int timeout);
 

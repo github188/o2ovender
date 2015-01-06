@@ -15,7 +15,7 @@ public:
 private:
     DECL_LOGGER(logger);
 
-    static std::map<std::string, SDSocket*> m_sockets;
+    static std::map<std::string, SDSocket*> m_objects;
 };
 
 #endif

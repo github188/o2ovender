@@ -5,6 +5,12 @@
 #include <common/SDNetFramework.h>
 
 #include "SDMobileSocket.h"
+#include "SDMobileRequestFactory.h"
+#include "SDMobileLoginRequest.h"
+#include "SDMobileRegisterRequest.h"
+#include "SDMobileCodeRequest.h"
+#include "SDMobileCommodityRequest.h"
+
 #include "SDEchoSocket.h"
 #include "SDProxySocket.h"
 
@@ -39,6 +45,11 @@ void SDHandlerManager::wait()
 
 bool SDHandlerManager::init_queue()
 {
+    SDMobileRequestFactory::register_object(o2ovender::request_TYPE_LOGIN, new SDMobileLoginRequest());
+    SDMobileRequestFactory::register_object(o2ovender::request_TYPE_REGISTER, new SDMobileRegisterRequest());
+    SDMobileRequestFactory::register_object(o2ovender::request_TYPE_GET_IDENTIFYING_CODE, new SDMobileCodeRequest());
+    SDMobileRequestFactory::register_object(o2ovender::request_TYPE_COMMODITY_LIST, new SDMobileCommodityRequest());
+
     return true;
 }
 

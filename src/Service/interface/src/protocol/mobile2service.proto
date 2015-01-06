@@ -65,7 +65,7 @@ message commodity_list_req
 
 message commodity_info
 {
-    required string id = 1;       //  商品唯一标记
+    required string id = 1;       //  商品序号
     optional int32 type = 2;      //  商品类型
     optional int32 code = 3;      //  商品编码
     optional string name = 4;     //  商品名称

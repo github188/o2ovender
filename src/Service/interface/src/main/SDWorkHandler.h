@@ -5,20 +5,27 @@
 #include <common/SDSocket.h>
 #include <common/SDConfiguration.h>
 
+#include "SDMobileRequest.h"
+
 class SDWorkHandler : public SDThreadPool
 {
 public:
+    static int MONGODB_CLI;
+    static int REDIS_CLI;
+    
     SDWorkHandler(int thread_size);
     virtual ~SDWorkHandler();
 
     bool init(SDConfiguration& config);
-    bool post(SDSharedSocket& socket);
+    //bool post(SDSharedSocket& socket);
+    bool post(SDSharedMobileRequest& mobile_request);
 
     virtual void doIt();
 
 protected:
     DECL_LOGGER(logger);
-    boost::shared_ptr<SDSocketQueue> m_queue;
+    //boost::shared_ptr<SDSocketQueue> m_queue;
+    boost::shared_ptr<SDMobileRequestQueue> m_queue;
     
     std::string m_mongo_host;
     int m_mongo_port;

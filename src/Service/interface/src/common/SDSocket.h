@@ -63,6 +63,7 @@ public:
     int m_fd;
     std::string m_local_addr;
     std::string m_remote_addr;
+    std::string m_key;
 
     IO_STATE m_state;
     SDSharedBuffer m_recv_buf;
@@ -70,7 +71,7 @@ public:
     SDBufferQueue* m_send_buf_queue;
 
     time_t m_unixtime;
-    uint64_t m_seq;
+    uint64_t m_checksum;
     SDConnHandler* m_conn_handler;
     friend class SDEventHandler;
     friend class SDPassiveConnHandler;

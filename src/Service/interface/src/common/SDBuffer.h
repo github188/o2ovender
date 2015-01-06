@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "SDQueue.h"
+#include <common/SDLogger.h>
 
 class SDBuffer;
 typedef boost::shared_ptr<SDBuffer> SDSharedBuffer;
@@ -14,6 +15,7 @@ class SDBuffer
 public:
     SDBuffer();
     SDBuffer(const char* buf, int size);
+    SDBuffer(int size);
     ~SDBuffer();
     
     void alloc_buf(int size);
@@ -30,6 +32,9 @@ public:
     int m_size;
 
     std::string m_ipv4;
+
+protected:
+    DECL_LOGGER(logger);
 };
 
 #endif

@@ -122,6 +122,21 @@ void SDActiveConnHandler::add_write_event(SDSharedSocket& socket)
     }
 }
 
+void SDActiveConnHandler::mod_read_event(SDSharedSocket& socket)
+{
+    if (SDEpollUtility::mod_read_event(m_efd, socket->m_fd) == 0) {
+        socket->m_state = IO_STATE_IN_EPOLL;
+        LOG4CPLUS_DEBUG(logger, "fd:" << socket->m_fd << " enter READ mode");
+    }
+}
+
+void SDActiveConnHandler::mod_write_event(SDSharedSocket& socket)
+{
+    if (SDEpollUtility::mod_write_event(m_efd, socket->m_fd) == 0) {
+        socket->m_state = IO_STATE_IN_EPOLL;
+        LOG4CPLUS_DEBUG(logger, "fd:" << socket->m_fd << " enter WRITE mode");
+    }
+}
 int SDActiveConnHandler::del_event(int fd)
 {
     static SDSharedSocket null_socket;
@@ -223,16 +238,22 @@ void SDActiveConnHandler::process_recv(SDSharedSocket& socket)
         int state = socket->on_recv(socket);
         LOG4CPLUS_DEBUG(logger, "on_recv(fd:" << fd << ") return " << state);
         if (state == IO_STATE_RECV_MORE) {
-            add_read_event(socket);
+            process_recv(socket);
         }
         else if (state == IO_STATE_SEND_MORE) {
-            process_send(socket);
+            mod_write_event(socket);
+        }
+        else {
+            SDEpollUtility::del_event(m_efd,fd);
+            socket->close();
         }
     }
     else if (recv_bytes < 0) {
+        SDEpollUtility::del_event(m_efd,fd);
+        socket->close();
     }
     else {
-        add_read_event(socket);
+        //add_read_event(socket);
     }
 }
 
@@ -258,20 +279,22 @@ void SDActiveConnHandler::process_send(SDSharedSocket& socket)
         int state = socket->on_send(socket);
         LOG4CPLUS_DEBUG(logger, "on_send(fd:" << fd << ") return " << state);
         if (state == IO_STATE_RECV_MORE) {
-            add_read_event(socket);
+            mod_read_event(socket);
         }
         else if (state == IO_STATE_SEND_MORE) {
             process_send(socket);
         }
         else {
+            SDEpollUtility::del_event(m_efd,fd);
             socket->close();
         }
     }
     else if (send_bytes < 0) {
+        SDEpollUtility::del_event(m_efd,fd);
         socket->close();
     }
     else {
-        add_write_event(socket);
+        //add_write_event(socket);
     }
 }
     
@@ -297,18 +320,17 @@ void SDActiveConnHandler::doIt()
             else {
                 SDSharedSocket socket = m_socket_list[fd];
            
-                if (del_event(fd) == 0) {
-                    if (SDEpollUtility::is_read_event(ev)) {
-                        process_recv(socket);
-                    }
-                    else if (SDEpollUtility::is_write_event(ev)) {
-                        process_send(socket);
-                    }
-                    else
-                    {
-                        LOG4CPLUS_WARN(logger, "fd:" << fd << " err event " << ev.events);
-                        socket->close();
-                    }
+                if (SDEpollUtility::is_read_event(ev)) {
+                    process_recv(socket);
+                }
+                else if (SDEpollUtility::is_write_event(ev)) {
+                    process_send(socket);
+                }
+                else
+                {
+                    LOG4CPLUS_WARN(logger, "fd:" << fd << " err event " << ev.events);
+                    SDEpollUtility::del_event(m_efd,fd);
+                    socket->close();
                 }
             }
         }

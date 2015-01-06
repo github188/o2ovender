@@ -1,6 +1,6 @@
 #include "SDCommodityInfo.h"
 
-#include <common/SDMongoUtility.h>
+#include "SDMongoClient.h"
 
 using namespace std;
 
@@ -15,13 +15,13 @@ const string SDMongoCommodityInfo::FIELD_IMG = "img";
 const string SDMongoCommodityInfo::FIELD_PRICE = "price";
 const string SDMongoCommodityInfo::FIELD_DISCOUNT = "discount";
     
-int SDMongoCommodityInfo::list_all(mongo::DBClientConnection* mongodb, std::vector<SDCommodityInfo>& commodity_list)
+int SDMongoCommodityInfo::list_all(SDMongoClient* mongodb, std::vector<SDCommodityInfo>& commodity_list)
 {
     const string& ns = NS;
     //builder.appendBinData(FIELD_UID, commodity_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     //mongo::BSONObj obj;
     std::vector<mongo::BSONObj> obj_list;
-    int res = SDMongoUtility::findall(mongodb, ns, mongo::BSONObj(), &obj_list);
+    int res = mongodb->findall(ns, mongo::BSONObj(), &obj_list);
     //LOG4CPLUS_DEBUG(logger, obj.jsonString());
     if (res > 0) {
         for (unsigned i=0; i<obj_list.size(); ++i) {
@@ -99,14 +99,14 @@ int SDMongoCommodityInfo::list_all(mongo::DBClientConnection* mongodb, std::vect
     return res;
 }
 
-int SDMongoCommodityInfo::query(mongo::DBClientConnection* mongodb, SDCommodityInfo& commodity_info)
+int SDMongoCommodityInfo::query(SDMongoClient* mongodb, SDCommodityInfo& commodity_info)
 {
     const string& ns = NS;
     mongo::BSONObjBuilder builder;
     //builder.appendBinData(FIELD_UID, commodity_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     builder.append(FIELD_ID, commodity_info.m_id);
     mongo::BSONObj obj;
-    int res = SDMongoUtility::findone(mongodb, ns, builder.obj(), &obj);
+    int res = mongodb->findone(ns, builder.obj(), &obj);
     LOG4CPLUS_DEBUG(logger, obj.jsonString());
     if (res == 1) {
         //mongo::BSONElement e = obj[FIELD_PASSWD];
@@ -120,7 +120,7 @@ int SDMongoCommodityInfo::query(mongo::DBClientConnection* mongodb, SDCommodityI
     return res;
 }
 
-int SDMongoCommodityInfo::insert(mongo::DBClientConnection* mongodb, SDCommodityInfo& commodity_info)
+int SDMongoCommodityInfo::insert(SDMongoClient* mongodb, SDCommodityInfo& commodity_info)
 {
     const string& ns = NS;
     mongo::BSONObjBuilder builder;
@@ -128,5 +128,5 @@ int SDMongoCommodityInfo::insert(mongo::DBClientConnection* mongodb, SDCommodity
     //builder.appendBinData(FIELD_UID, commodity_info.m_uid.length(), mongo::BinDataGeneral, account_info.m_uid.c_str());
     //builder.appendBinData(FIELD_PASSWD, commodity_info.m_passwd.length(), mongo::BinDataGeneral, account_info.m_passwd.c_str());
 
-    return SDMongoUtility::insert(mongodb, ns, builder.obj());
+    return mongodb->insert(ns, builder.obj());
 }

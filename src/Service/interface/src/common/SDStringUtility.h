@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <stdint.h>
 #include <openssl/md5.h>
 
 class SDStringUtility
@@ -25,6 +26,9 @@ public:
     }
 
     static std::string md5_32(const std::string& str);
+    
+    static std::string passive_conn_key_encode(uint32_t index, uint64_t checksum);
+    static void passive_conn_key_decode(const std::string& key, uint32_t* index, uint64_t* checksum);
 };
 
 #endif

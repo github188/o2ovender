@@ -8,20 +8,23 @@ IMPL_LOGGER(SDSocket, logger);
 
 SDSocket::SDSocket()
 {
+    LOG4CPLUS_TRACE(logger, "SDSocket>>>");
     m_state = IO_STATE_RECV_MORE;
     m_fd = -1;
-    m_send_buf_queue = NULL;
     m_conn_handler = NULL;
 
-    m_recv_buf = SDSharedBuffer(new SDBuffer());
-    m_send_buf = SDSharedBuffer(new SDBuffer());
+    //m_recv_buf = SDSharedBuffer(new SDBuffer());
+    //m_send_buf = SDSharedBuffer(new SDBuffer());
+
+    m_send_buf_queue = NULL;
 
     m_unixtime = time(NULL);
-    m_seq = 0;
+    m_checksum = 0;
 }
 
 SDSocket::~SDSocket()
 {
+    LOG4CPLUS_TRACE(logger, "SDSocket<<<");
     close();
 
     if (m_send_buf_queue) {
@@ -31,9 +34,9 @@ SDSocket::~SDSocket()
 
 void SDSocket::close()
 {
+    LOG4CPLUS_DEBUG(logger, "close fd:" << m_fd);
     if (m_fd != -1) {
         ::close(m_fd);
-        LOG4CPLUS_DEBUG(logger, "close fd:" << m_fd);
         m_fd = -1;
     }
 }
@@ -78,14 +81,20 @@ SDSocket* SDSocket::clone()
 
 int SDSocket::on_recv(SDSharedSocket& socket)
 {
-    m_recv_buf->lseek(0);
-    return IO_STATE_RECV_MORE;
+    return -1;
 }
 
 int SDSocket::on_send(SDSharedSocket& socket)
 {
-    m_recv_buf->free_buf();
-    return IO_STATE_SEND_MORE;
+    if (m_send_buf->length() >= m_send_buf->size()){
+        m_recv_buf->lseek(0);
+        return IO_STATE_RECV_MORE;
+    }
+    else {
+        return IO_STATE_SEND_MORE;
+    }
+
+    return 0;
 }
 
 int SDSocket::on_request(SDSharedSocket& socket, std::map<int, void*>& param)
@@ -132,7 +141,7 @@ int SDSocket::send_data()
 {
     m_unixtime = time(NULL);
 
-    if (m_send_buf.get() == NULL || m_send_buf->size() == 0) {
+    if (m_send_buf.get() == NULL || m_send_buf->size() == 0 || m_send_buf->length() >= m_send_buf->size()) {
         if (m_send_buf_queue) {
             if (m_send_buf_queue->getSize()>0 && m_send_buf_queue->pop_nonblock(m_send_buf)) {
             }

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <common/SDLogger.h>
-#include <client/dbclient.h>
+#include "SDMongoClient.h"
 
 class SDCommodityInfo
 {
@@ -21,10 +21,10 @@ public:
 class SDMongoCommodityInfo
 {
 public:
-    static int list_all(mongo::DBClientConnection* mongodb, std::vector<SDCommodityInfo>& commodity_list);
+    static int list_all(SDMongoClient* mongodb, std::vector<SDCommodityInfo>& commodity_list);
     
-    static int query(mongo::DBClientConnection* mongodb, SDCommodityInfo& commodity_info);
-    static int insert(mongo::DBClientConnection* mongodb, SDCommodityInfo& commodity_info);
+    static int query(SDMongoClient* mongodb, SDCommodityInfo& commodity_info);
+    static int insert(SDMongoClient* mongodb, SDCommodityInfo& commodity_info);
 
 private:
     static const std::string NS;

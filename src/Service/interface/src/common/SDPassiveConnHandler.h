@@ -21,6 +21,8 @@ public:
 
     void add_read_event(SDSharedSocket& socket);
     void add_write_event(SDSharedSocket& socket);
+    void mod_read_event(SDSharedSocket& socket);
+    void mod_write_event(SDSharedSocket& socket);
     int del_event(int fd);
 
 private:
@@ -51,7 +53,7 @@ protected:
 
     int m_timeout;
     int m_total_sockets;
-    uint64_t m_seq;
+    uint64_t m_checksum;
     SDSharedSocket* m_socket_list;
 };
 

@@ -8,6 +8,7 @@
 #include <common/SDConfiguration.h>
 
 #include "SDWorkHandler.h"
+#include <avm/SDAVMWorkHandler.h>
 
 class SDHandlerManager
 {
@@ -30,6 +31,7 @@ private:
     SDConfiguration m_config;
 
     boost::shared_ptr<SDWorkHandler> m_work_handler;
+    boost::shared_ptr<SDAVMWorkHandler> m_avm_work_handler;
 };
 
 #endif

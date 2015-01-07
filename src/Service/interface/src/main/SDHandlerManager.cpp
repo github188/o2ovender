@@ -4,12 +4,16 @@
 #include <common/SDSocketFactory.h>
 #include <common/SDNetFramework.h>
 
-#include "SDMobileSocket.h"
-#include "SDMobileRequestFactory.h"
-#include "SDMobileLoginRequest.h"
-#include "SDMobileRegisterRequest.h"
-#include "SDMobileCodeRequest.h"
-#include "SDMobileCommodityRequest.h"
+#include <mobile/SDMobileSocket.h>
+#include <mobile/SDMobileRequestFactory.h>
+#include <mobile/SDMobileLoginRequest.h>
+#include <mobile/SDMobileRegisterRequest.h>
+#include <mobile/SDMobileCodeRequest.h>
+#include <mobile/SDMobileCommodityRequest.h>
+
+#include <avm/SDAVMSocket.h>
+#include <avm/SDAVMRequestFactory.h>
+#include <avm/SDAVMSignInRequest.h>
 
 #include "SDEchoSocket.h"
 #include "SDProxySocket.h"
@@ -35,12 +39,14 @@ void SDHandlerManager::start()
 {
     SDNetFramework::startThreads();
     m_work_handler->startThreads();
+    m_avm_work_handler->startThreads();
 }
 
 void SDHandlerManager::wait()
 {
     SDNetFramework::waitThreadsTermination();
     m_work_handler->waitThreadsTermination();
+    m_avm_work_handler->waitThreadsTermination();
 }
 
 bool SDHandlerManager::init_queue()
@@ -49,6 +55,8 @@ bool SDHandlerManager::init_queue()
     SDMobileRequestFactory::register_object(o2ovender::request_TYPE_REGISTER, new SDMobileRegisterRequest());
     SDMobileRequestFactory::register_object(o2ovender::request_TYPE_GET_IDENTIFYING_CODE, new SDMobileCodeRequest());
     SDMobileRequestFactory::register_object(o2ovender::request_TYPE_COMMODITY_LIST, new SDMobileCommodityRequest());
+    
+    SDAVMRequestFactory::register_object(SDAVMRequest::SIGN_IN, new SDAVMSignInRequest());
 
     return true;
 }
@@ -69,11 +77,22 @@ bool SDHandlerManager::init_thread()
         return false;
     }
     
+    handler_size = m_config.getInt("work.handler.count", 1);
+    m_avm_work_handler = boost::shared_ptr<SDAVMWorkHandler>(new SDAVMWorkHandler(handler_size));
+    if (!m_avm_work_handler->init(m_config)) {
+        return false;
+    }
+    
     std::vector<std::string>& listen_ipv4 = SDNetFramework::m_listen_ipv4;
     for (std::vector<std::string>::iterator it = listen_ipv4.begin(); it != listen_ipv4.end(); ++it) {
-        if (it->find(":80") != string::npos) {
+        if (it->find(":80") != string::npos && (it->find(":80")+3) == it->length()) {
             SDMobileSocket* socket = new SDMobileSocket();
             socket->init(m_work_handler);
+            SDSocketFactory::register_socket(*it, socket);       
+        }
+        else if (it->find(":8000") != string::npos && (it->find(":8000")+5) == it->length()) {
+            SDAVMSocket* socket = new SDAVMSocket();
+            socket->init(m_avm_work_handler);
             SDSocketFactory::register_socket(*it, socket);       
         }
     }

@@ -3,10 +3,9 @@ ADD_EXECUTABLE(interface ${SERVER_SRCS})
 
 TARGET_LINK_LIBRARIES(
     interface
-    common protocol
-    liblog4cplus.a
+    common mobile avm protocol
     pthread rt crypto
-    /usr/local/lib/libprotobuf.a
+    /usr/local/lib/libprotobuf.a liblog4cplus.a
     mongoclient
     boost_thread
     boost_filesystem

@@ -1,27 +1,26 @@
-#include "SDWorkHandler.h"
+#include "SDAVMWorkHandler.h"
 
 #include <client/dbclient.h>
-#include "SDRedisClient.h"
-#include "SDMongoClient.h"
-#include <mobile/SDMobileSocket.h>
+#include <main/SDRedisClient.h>
+#include <main/SDMongoClient.h>
 
 using namespace std;
 
-IMPL_LOGGER(SDWorkHandler, logger);
+IMPL_LOGGER(SDAVMWorkHandler, logger);
 
-int SDWorkHandler::MONGODB_CLI = 0;
-int SDWorkHandler::REDIS_CLI = 1;
+int SDAVMWorkHandler::MONGODB_CLI = 0;
+int SDAVMWorkHandler::REDIS_CLI = 1;
 
-SDWorkHandler::SDWorkHandler(int thread_size) : SDThreadPool(thread_size)
+SDAVMWorkHandler::SDAVMWorkHandler(int thread_size) : SDThreadPool(thread_size)
 {}
 
-SDWorkHandler::~SDWorkHandler()
+SDAVMWorkHandler::~SDAVMWorkHandler()
 {}
 
-bool SDWorkHandler::init(SDConfiguration& config)
+bool SDAVMWorkHandler::init(SDConfiguration& config)
 {
     int queue_size = config.getInt("work.queue.size", 100);
-    m_queue = boost::shared_ptr<SDMobileRequestQueue>(new SDMobileRequestQueue(queue_size));
+    m_queue = boost::shared_ptr<SDAVMRequestQueue>(new SDAVMRequestQueue(queue_size));
 
     m_mongo_host = config.getString("mongodb.host", "127.0.0.1");
     m_mongo_port = config.getInt("mongodb.port", 27017);
@@ -32,7 +31,7 @@ bool SDWorkHandler::init(SDConfiguration& config)
     return true;
 }
 
-bool SDWorkHandler::post(SDSharedMobileRequest& mobile_request)
+bool SDAVMWorkHandler::post(SDSharedAVMRequest& mobile_request)
 {
     if (!m_queue->push_nonblock(mobile_request)) {
         LOG4CPLUS_WARN(logger, "push() fail: queue size=" << m_queue->getCapacity());
@@ -42,7 +41,7 @@ bool SDWorkHandler::post(SDSharedMobileRequest& mobile_request)
     return true;
 }
 
-void SDWorkHandler::doIt()
+void SDAVMWorkHandler::doIt()
 {
     SDMongoClient mongodb;
     mongodb.connect(m_mongo_host, m_mongo_port);
@@ -51,7 +50,7 @@ void SDWorkHandler::doIt()
     redis.connect(m_redis_host, m_redis_port);
 
     for (;;) {
-        SDSharedMobileRequest request;
+        SDSharedAVMRequest request;
         if (!m_queue->pop(request)) {
             LOG4CPLUS_DEBUG(logger, "pop() fail");
             continue;

@@ -6,6 +6,19 @@
 #include <string.h>
 #include <stdlib.h>
 
+class SDStringStream;
+
+class SDFakeString
+{
+private:
+    const char* m_buffer;
+    unsigned int m_buffer_size;
+
+public:
+    SDFakeString(const char* buffer, unsigned int buffer_size) : m_buffer(buffer), m_buffer_size(buffer_size) {}    
+    friend class SDStringStream;
+};
+
 class SDStringStream
 {
 private:
@@ -198,7 +211,45 @@ public:
 
 		return *this;
 	  }
-	 
+
+      SDStringStream& operator<< (const SDFakeString& arg)
+      {
+          if (this->operator!()) {
+              return *this;
+          }
+
+          unsigned int str_length = arg.m_buffer_size;
+          const char* str_buffer = arg.m_buffer;
+          if (left_size() < str_length) {
+              m_opt_status = true;
+          }
+          else {
+              //m_opt_status = false;         
+              memcpy(m_buffer+m_buffer_offset, str_buffer, str_length);
+              m_buffer_offset += str_length;
+          }
+
+          return *this;
+      }
+	  SDStringStream& operator>> (const SDFakeString& arg)
+	  {
+	  	if (this->operator!()) {
+			return *this;
+	  	}
+        
+        unsigned int str_length = arg.m_buffer_size;
+        const char* str_buffer = arg.m_buffer;
+        if (left_size() < str_length) {
+            m_opt_status = true;
+        }
+        else {
+            //m_opt_status = false;         
+            memcpy(str_buffer, m_buffer+m_buffer_offset, str_length);
+            m_buffer_offset += str_length;
+        }
+
+		return *this;
+	  }
 };
 
 #endif // SD_STRING_STREAM_H_20071124

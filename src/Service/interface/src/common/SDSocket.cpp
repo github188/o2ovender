@@ -107,6 +107,10 @@ int SDSocket::recv_data()
     m_unixtime = time(NULL);
     
     if (m_recv_buf->data() == NULL || m_recv_buf->size() == 0 || m_recv_buf->length() >= m_recv_buf->size()) {
+        LOG4CPLUS_WARN(logger, m_remote_addr << "=>" << m_local_addr
+                << " fd:" << m_fd << " recv() fail: m_recv_buf->data()=" << (m_recv_buf->data()?true:false)
+                << ", m_recv_buf->size()=" << m_recv_buf->size()
+                << ", m_recv_buf->length()=" << m_recv_buf->length());
         return -1;
     }
     

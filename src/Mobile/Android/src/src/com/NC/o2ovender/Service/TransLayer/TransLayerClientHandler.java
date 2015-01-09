@@ -21,6 +21,7 @@ public class TransLayerClientHandler extends SimpleChannelUpstreamHandler {
 			throws Exception {
 		Log.i(TAG, "channelConnected");
 		super.channelConnected(ctx, e);
+		ServiceMgrImp.GetServiceMgrImp().connected();
 	}
 
 	@Override
@@ -28,6 +29,7 @@ public class TransLayerClientHandler extends SimpleChannelUpstreamHandler {
 			ChannelStateEvent e) throws Exception {
 		Log.i(TAG, "channelDisconnected");
 		super.channelDisconnected(ctx, e);
+		ServiceMgrImp.GetServiceMgrImp().disconnected();
 	}
 
 	@Override

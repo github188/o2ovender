@@ -1,6 +1,8 @@
 package com.NC.o2ovender.Service.Backagent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import android.os.Handler;
@@ -17,24 +19,29 @@ public class BackagentImp extends Handler {
 	private TransLayerImp mTransLayerImp = null;
 		
 	//消息ID
-	public static final int MSG_TYPE_START = 0;
+//	public static final int MSG_TYPE_START = 0;
 	public static final int MSG_TYPE_QUIT = 1;
 	public static final int MSG_TYPE_SEND = 2;
 	public static final int MSG_TYPE_RECV = 3;
 	public static final int MSG_TYPE_REGIST = 4;
 	public static final int MSG_TYPE_UNREGIST = 5;
+	public static final int MSG_TYPE_CONNECTED = 6;
+	public static final int MSG_TYPE_DISCONNECTED = 7;
 	
 	private Map<response.TYPE, ResponseCmdCallback> mCallbackMap = null;
+	private List<request> mRequestCache = null;
+	private boolean mIsRunning = false;
 	
 	public BackagentImp(Looper looper) {
 		super(looper);
+		mCallbackMap = new HashMap<response.TYPE, ResponseCmdCallback>();
+		mRequestCache = new ArrayList<request>();
 	}
 	
 	private boolean init() {
 		if (null == mTransLayerImp) {
 			mTransLayerImp = new TransLayerImp();
-			if (mTransLayerImp.init()) {
-				mCallbackMap = new HashMap<response.TYPE, ResponseCmdCallback>();
+			if (mTransLayerImp.init()) {				
 				return true;
 			} else {
 				unInit();
@@ -46,6 +53,7 @@ public class BackagentImp extends Handler {
 	}
 	
 	public void unInit() {
+		mIsRunning = false;
 		if (null != mCallbackMap) {
 			mCallbackMap = null;
 		}
@@ -58,9 +66,9 @@ public class BackagentImp extends Handler {
 	@Override
 	public void handleMessage(Message msg) {
 		switch (msg.what) {
-		case MSG_TYPE_START:
-			handleStartMessage();
-			break;
+//		case MSG_TYPE_START:
+//			handleStartMessage();
+//			break;
 		case MSG_TYPE_QUIT:
 			handleQuitMessage();
 			break;
@@ -76,15 +84,35 @@ public class BackagentImp extends Handler {
 		case MSG_TYPE_UNREGIST:
 			handleUnregistMessage(msg);
 			break;
+		case MSG_TYPE_CONNECTED:
+			handleConnectedMessage();
+			break;
+		case MSG_TYPE_DISCONNECTED:
+			handleDisconnectedMessage();
+			break;
 		default:
 			super.handleMessage(msg);
 			break;
 		}
 	}
 	
+//	private void handleStartMessage() {
+//		init();
+//	}
+	
+	private void handleQuitMessage() {
+		unInit();
+		getLooper().quit();
+	}
+	
 	private void handleSendDataMessage(Message msg) {
 		request requestCmd = (request)msg.obj;
-		mTransLayerImp.sendRequest(requestCmd);
+		if (false == mIsRunning) {
+			init();
+			mRequestCache.add(requestCmd);
+		} else {
+			mTransLayerImp.sendRequest(requestCmd);
+		}		
 	}
 	
 	private void handleRecvDataMessage(Message msg) {
@@ -96,16 +124,7 @@ public class BackagentImp extends Handler {
 				cmdCallback.responseCallback(requestCmd);
 			}
 		}		
-	}
-	
-	private void handleStartMessage() {
-		init();
-	}
-	
-	private void handleQuitMessage() {
-		unInit();
-		getLooper().quit();
-	}
+	}	
 	
 	private void handleRegisteMessage(Message msg) {
 		ResponseCallbackUnit unit = (ResponseCallbackUnit)msg.obj;
@@ -115,5 +134,18 @@ public class BackagentImp extends Handler {
 	private void handleUnregistMessage(Message msg) {
 		ResponseCallbackUnit unit = (ResponseCallbackUnit)msg.obj;
 		mCallbackMap.remove(unit.getType());
+	}
+	
+	private void handleConnectedMessage() {
+		mIsRunning = true;
+		if (false == mRequestCache.isEmpty()) {
+			for (request requestCmd : mRequestCache) {
+				mTransLayerImp.sendRequest(requestCmd);
+			}
+		}
+	}
+	
+	private void handleDisconnectedMessage() {
+		mIsRunning = false;
 	}
 }

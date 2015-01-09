@@ -166,9 +166,14 @@ public class TransLayerImp {
 	        }
         }
         
-        request.setContent(data);
+        if (null != mChannel) {
+        	request.setContent(data);
+        	mChannel.write(request);
+        	return mChannel.getPipeline();
+        } else {
+        	return retrieve(request);
+        }
         
-        return retrieve(request);
 	}
 	
 	class ConnectOk implements ChannelFutureListener {

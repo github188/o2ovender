@@ -53,7 +53,7 @@ public class BackagentImp extends Handler {
 	}
 	
 	public void unInit() {
-		mIsRunning = false;
+//		mIsRunning = false;
 		if (null != mCallbackMap) {
 			mCallbackMap = null;
 		}
@@ -149,7 +149,7 @@ public class BackagentImp extends Handler {
 	}
 	
 	private void handleConnectedMessage() throws Exception {
-		mIsRunning = true;
+//		mIsRunning = true;
 		if (false == mRequestCache.isEmpty()) {
 			for (request requestCmd : mRequestCache) {
 				mTransLayerImp.sendRequest(requestCmd);
@@ -158,6 +158,6 @@ public class BackagentImp extends Handler {
 	}
 	
 	private void handleDisconnectedMessage() {
-		mIsRunning = false;
+//		mIsRunning = false;
 	}
 }

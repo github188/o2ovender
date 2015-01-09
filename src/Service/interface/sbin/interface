@@ -1,0 +1,19 @@
+#!/bin/sh
+
+. /home/qiuzhicong/S/interface/sbin/functions
+
+RETVAL=0
+prog="interface"
+conf="../conf/interface.conf"
+args="-d -f ../conf/interface.conf"
+files=(../bin/interface ../conf/interface.conf ../conf/log4cplus.properties)
+log="../log/interface.log"
+
+case "$1" in
+    alarm)
+        alarm_cache
+        ;;
+    *)
+    run $*
+        ;;
+esac

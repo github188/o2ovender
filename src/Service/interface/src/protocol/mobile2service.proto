@@ -2,7 +2,7 @@ package o2ovender;
 
 option optimize_for = CODE_SIZE;
 
-// 获得激活码
+// 激活码请求
 message get_identifying_code_req
 {
     required string uid = 1;  // 手机号码
@@ -58,6 +58,37 @@ enum ERRCODE
     optional ERRCODE errcode = 3 [default = NO_ERR];  // 失败原因代码
 };
 
+// 商品列表请求
+message commodity_list_req
+{
+};
+
+message commodity_info
+{
+    required string id = 1;       //  商品序号
+    optional int32 type = 2;      //  商品类型
+    optional int32 code = 3;      //  商品编码
+    optional string name = 4;     //  商品名称
+    optional string img = 5;      //  商品图片
+    optional float price = 6;     //  商品价格
+    optional float discount = 7;  //  商品折扣价
+};
+
+// 商品列表响应
+message commodity_list_resp
+{
+enum ERRCODE
+{
+    NO_ERR = 0;              // 没有错误
+    SERVER_BUSY = 1;         // 服务器繁忙
+    NO_LOGIN = 2;            // 没有登录
+ }
+    required int32 result = 1;  // 结果: 0成功,其它失败
+    optional string msg = 2;    // 失败原因
+    optional ERRCODE errcode = 3 [default = NO_ERR];  // 失败原因代码
+    repeated commodity_info commodity_info = 4;  // 商品列表
+};
+
 // 请求
 message request
 {
@@ -67,11 +98,13 @@ enum TYPE
     GET_IDENTIFYING_CODE = 1;
     REGISTER= 2;
     LOGIN = 3;
+    COMMODITY_LIST = 4;
 }
     required TYPE type = 1 [default = NO_TYPE];
     optional get_identifying_code_req get_identifying_code_req = 2;
     optional register_req register_req = 3;
     optional login_req login_req = 4;
+    optional commodity_list_req commodity_list_req = 5;
 };
 
 // 响应
@@ -82,8 +115,10 @@ enum TYPE
     NO_TYPE = 0;
     REGISTER= 1;
     LOGIN = 2;
+    COMMODITY_LIST = 3;
 }
     required TYPE type = 1 [default = NO_TYPE];
     optional login_resp login_resp = 2;
     optional register_resp register_resp = 3;
+    optional commodity_list_resp commodity_list_resp = 4;
 };

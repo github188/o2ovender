@@ -1,4 +1,4 @@
-package o2ovender;
+package com.NC.o2ovender.Service.Command;
 
 option optimize_for = CODE_SIZE;
 
@@ -23,13 +23,9 @@ message register_resp
     optional string msg = 2;    // 失败原因
 enum ERRCODE
 {
-    NO_ERR = 0;          // 没有错误
-    SERVER_BUSY = 1;     // 服务器繁忙
-    ACCOUNT_EMPTY = 2;   // 输入的账号为空
-    ACCOUNT_EXISTS = 3;  // 账号已存在
-    PASSWD_EMPTY = 4;    // 输入的密码为空
-    IDCODE_EMPTY = 5;    // 输入的验证码为空
-    IDCODE_WRONG = 6;    // 验证码不正确
+    NO_ERR = 0;
+    SERVER_BUSY = 1;
+    ACCOUNT_EXISTS = 2;
  }
     optional ERRCODE errcode = 3 [default = NO_ERR];  // 失败原因代码
 };
@@ -48,12 +44,10 @@ message login_resp
     optional string msg = 2;    // 失败原因
 enum ERRCODE
 {
-    NO_ERR = 0;              // 没有错误
-    SERVER_BUSY = 1;         // 服务器繁忙
-    ACCOUNT_EMPTY = 2;       // 输入的账号为空
-    ACCOUNT_NOT_EXISTS = 3;  // 账号不存在
-    PASSWD_EMPTY = 4;        // 输入的密码为空
-    PASSWD_WRONG = 5;        // 密码不正确
+    NO_ERR = 0;
+    SERVER_BUSY = 1;
+    ACCOUNT_NOT_EXISTS = 2;
+    PASSWD_WRONG = 3;
  }
     optional ERRCODE errcode = 3 [default = NO_ERR];  // 失败原因代码
 };

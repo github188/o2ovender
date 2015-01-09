@@ -1,11 +1,13 @@
 package com.NC.o2ovender.Service.TransLayer;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.handler.codec.http.HttpResponse;
 
 import android.util.Log;
 
@@ -51,7 +53,12 @@ public class TransLayerClientHandler extends SimpleChannelUpstreamHandler {
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e)
 			throws Exception {
-		response responseCmd = (response)e.getMessage();
+		HttpResponse httpResponse = (HttpResponse)e.getMessage();
+		
+		ChannelBuffer contentBuffer = httpResponse.getContent();
+		byte[] bytes = contentBuffer.array();
+		
+		response responseCmd = response.parseFrom(bytes);
 		ServiceMgrImp.GetServiceMgrImp().recv(responseCmd);
 	}	
 }

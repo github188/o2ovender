@@ -30,7 +30,7 @@ public class BackagentImp extends Handler {
 	
 	private Map<response.TYPE, ResponseCmdCallback> mCallbackMap = null;
 	private List<request> mRequestCache = null;
-	private boolean mIsRunning = false;
+//	private boolean mIsRunning = false;
 	
 	public BackagentImp(Looper looper) {
 		super(looper);
@@ -73,7 +73,12 @@ public class BackagentImp extends Handler {
 			handleQuitMessage();
 			break;
 		case MSG_TYPE_SEND:
-			handleSendDataMessage(msg);
+			try {
+				handleSendDataMessage(msg);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case MSG_TYPE_RECV:
 			handleRecvDataMessage(msg);
@@ -85,7 +90,12 @@ public class BackagentImp extends Handler {
 			handleUnregistMessage(msg);
 			break;
 		case MSG_TYPE_CONNECTED:
-			handleConnectedMessage();
+			try {
+				handleConnectedMessage();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case MSG_TYPE_DISCONNECTED:
 			handleDisconnectedMessage();
@@ -105,14 +115,16 @@ public class BackagentImp extends Handler {
 		getLooper().quit();
 	}
 	
-	private void handleSendDataMessage(Message msg) {
+	private void handleSendDataMessage(Message msg) throws Exception {
 		request requestCmd = (request)msg.obj;
-		if (false == mIsRunning) {
-			init();
-			mRequestCache.add(requestCmd);
-		} else {
-			mTransLayerImp.sendRequest(requestCmd);
-		}		
+		init();
+		mTransLayerImp.sendRequest(requestCmd);
+//		if (false == mIsRunning) {
+//			init();
+//			mRequestCache.add(requestCmd);
+//		} else {
+//			mTransLayerImp.sendRequest(requestCmd);
+//		}		
 	}
 	
 	private void handleRecvDataMessage(Message msg) {
@@ -136,7 +148,7 @@ public class BackagentImp extends Handler {
 		mCallbackMap.remove(unit.getType());
 	}
 	
-	private void handleConnectedMessage() {
+	private void handleConnectedMessage() throws Exception {
 		mIsRunning = true;
 		if (false == mRequestCache.isEmpty()) {
 			for (request requestCmd : mRequestCache) {

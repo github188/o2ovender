@@ -42,8 +42,8 @@ public class ServiceMgrImp extends HandlerThread {
 		super.start();
 		if (null == mBackagentImp) {
 			mBackagentImp = new BackagentImp(getLooper());
-			Message msg = Message.obtain(mBackagentImp, BackagentImp.MSG_TYPE_START);
-			msg.sendToTarget();
+//			Message msg = Message.obtain(mBackagentImp, BackagentImp.MSG_TYPE_START);
+//			msg.sendToTarget();
 		}
 	}
 	
@@ -70,6 +70,24 @@ public class ServiceMgrImp extends HandlerThread {
 			Log.e(TAG, "backagent is uninit");
 		}
 		Message msg = Message.obtain(mBackagentImp, BackagentImp.MSG_TYPE_SEND, responseCmd);
+		msg.sendToTarget();
+	}
+	
+	public boolean connected() {
+		if (null == mBackagentImp) {
+			Log.e(TAG, "backagent need init");
+			return false;
+		}
+		Message msg = Message.obtain(mBackagentImp, BackagentImp.MSG_TYPE_CONNECTED);
+		msg.sendToTarget();
+		return true;
+	}
+	
+	public void disconnected() {
+		if (null == mBackagentImp) {
+			Log.e(TAG, "backagent is uninit");
+		}
+		Message msg = Message.obtain(mBackagentImp, BackagentImp.MSG_TYPE_DISCONNECTED);
 		msg.sendToTarget();
 	}
 	

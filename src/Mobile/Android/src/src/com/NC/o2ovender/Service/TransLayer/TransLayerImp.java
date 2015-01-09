@@ -2,7 +2,6 @@ package com.NC.o2ovender.Service.TransLayer;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
@@ -36,6 +35,7 @@ public class TransLayerImp {
 	private ClientBootstrap mClientBootstrap = null;
 	private ChannelGroup mAllChannels = null;
 	private Channel mChannel = null;
+	private HttpRequest mHttpRequest = null;
 	private ChannelPipelineFactory mChannelPipelineFactory = null;
 	private boolean mInit = false;
 	public boolean init() {
@@ -97,6 +97,9 @@ public class TransLayerImp {
 			mChannel.close().awaitUninterruptibly();
 			mChannel = null;
 		}
+		if (null != mHttpRequest) {
+			mHttpRequest = null;
+		}
 		if (null != mClientBootstrap) {
 			mClientBootstrap.releaseExternalResources();
 			mClientBootstrap = null;
@@ -108,10 +111,15 @@ public class TransLayerImp {
 		byte[] requestByte = requestCmd.toByteArray();
 		ChannelBuffer channelBuffer = ChannelBuffers.buffer(requestByte.length);
 		channelBuffer.writeBytes(requestByte);
-//		if (null != mChannel) {
-//			mChannel.write(channelBuffer);
-//		}
-		post(channelBuffer);
+		if (null == mHttpRequest) {
+			post(channelBuffer);
+		} else {
+			HttpHeaders.setContentLength(mHttpRequest, channelBuffer.readableBytes());
+			mHttpRequest.setContent(channelBuffer);
+			assert(null != mChannel);
+			mChannel.write(mHttpRequest);
+		}
+		
 	}
 	
 	public void setOption(String key, Object value) {
@@ -149,30 +157,34 @@ public class TransLayerImp {
 			throw new Exception("just support http protocol");
 		}
 		
-		HttpRequest request = new DefaultHttpRequest(
+		mHttpRequest = new DefaultHttpRequest(
 				HttpVersion.HTTP_1_1, 
 				HttpMethod.valueOf(method), 
 				uri.toASCIIString());
 		
 		String host = uri.getHost() == null ? LOCAL_HOST : uri.getHost();
-		request.headers().set(HttpHeaders.Names.HOST, host);
-		request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
+		mHttpRequest.headers().set(HttpHeaders.Names.HOST, host);
+		mHttpRequest.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);
 		
         if(cookie != null){
         	CookieEncoder httpCookieEncoder = new CookieEncoder(false);  
 	        for (Map.Entry<String, String> m : cookie.entrySet()) {
 	        	httpCookieEncoder.addCookie(m.getKey(), m.getValue());
-	        	request.headers().set(HttpHeaders.Names.COOKIE, httpCookieEncoder.encode());    
+	        	mHttpRequest.headers().set(HttpHeaders.Names.COOKIE, httpCookieEncoder.encode());    
 	        }
         }
         
-        if (null != mChannel) {
-        	request.setContent(data);
-        	mChannel.write(request);
-        	return mChannel.getPipeline();
-        } else {
-        	return retrieve(request);
-        }
+//        if (null != mChannel) {
+//        	request.setContent(data);
+//        	mChannel.write(request);
+//        	return mChannel.getPipeline();
+//        } else {
+//        	return retrieve(request);
+//        }
+        
+        HttpHeaders.setContentLength(mHttpRequest, data.readableBytes());
+        mHttpRequest.setContent(data);
+        return retrieve(mHttpRequest);
         
 	}
 	
@@ -187,8 +199,9 @@ public class TransLayerImp {
 	        if (!future.isSuccess()) {                                                  
 	            future.getCause().printStackTrace();                                 
 	            return;                                                                 
-	        }                                                                   
-	        mChannel = future.getChannel();                                                                            
+	        }
+	        mInit = true;
+	        mChannel = future.getChannel();                                                            
 	        mChannel.write(request);
 	    }
 	}

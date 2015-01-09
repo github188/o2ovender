@@ -17,7 +17,7 @@
             android:background="#FF571F" >
 
             <ImageView
-                android:id="@+id/userInfoBackHome"
+                android:id="@+id/registerBackHome"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentLeft="true"
@@ -26,13 +26,13 @@
                 android:src="@drawable/return_3" />
 
             <TextView
-                android:id="@+id/LogTitle"
+                android:id="@+id/RegisterTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="12dp"
-                android:layout_toRightOf="@+id/userInfoBackHome"
-                android:text="登录"
+                android:layout_toRightOf="@+id/registerBackHome"
+                android:text="注册"
                 android:textColor="#666666"
                 android:textSize="18sp" />
         </RelativeLayout>
@@ -54,7 +54,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="97dp"
+            android:layout_height="146dp"
             android:background="#FFFFFF" >
 
             <RelativeLayout
@@ -81,14 +81,15 @@
                     android:layout_marginLeft="16dp"
                     android:layout_toRightOf="@+id/imageView2"
                     android:ems="10"
-                    android:text="jieouy"
+                    android:text="13760172870"
                     android:textColor="#333333"
-                    android:textSize="14sp" >
+                    android:textSize="14sp"
+                    android:inputType="phone" >
 
                     <requestFocus />
                 </EditText>
             </RelativeLayout>
-
+			
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
@@ -117,6 +118,35 @@
                     android:textColor="#333333"
                     android:textSize="14sp" />
             </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true" >
+
+                <EditText
+                    android:id="@+id/verificationEdit"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:ems="10"
+                    android:inputType="numberPassword" />
+
+                <Button
+                    android:id="@+id/verificationBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_toRightOf="@+id/verificationEdit"
+                    android:text="获取短信验证码" />
+
+            </RelativeLayout>
+
         </RelativeLayout>
 
         <Button
@@ -125,7 +155,7 @@
             android:layout_height="48dp"
             android:layout_marginTop="12dp"
             android:background="#FF571F"
-            android:text="登录"
+            android:text="注册"
             android:textColor="#FFFFFF"
             android:textSize="16sp" />
 
@@ -133,28 +163,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp" >
-
-            <TextView
-                android:id="@+id/registerID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="20dp"
-                android:text="注册"
-                android:textColor="#FF571F"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/queryPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/registerID"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
-                android:text="忘记密码"
-                android:textColor="#FF571F"
-                android:textSize="14sp" />
 
         </RelativeLayout>
 

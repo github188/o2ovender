@@ -17,7 +17,7 @@
             android:background="#FF571F" >
 
             <ImageView
-                android:id="@+id/userInfoBackHome"
+                android:id="@+id/loginBackHome"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_alignParentLeft="true"
@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="12dp"
-                android:layout_toRightOf="@+id/userInfoBackHome"
+                android:layout_toRightOf="@+id/loginBackHome"
                 android:text="登录"
                 android:textColor="#666666"
                 android:textSize="18sp" />
@@ -74,16 +74,17 @@
                     android:src="@drawable/account_2" />
 
                 <EditText
-                    android:id="@+id/registerUserID"
+                    android:id="@+id/userID"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/imageView2"
                     android:layout_marginLeft="16dp"
                     android:layout_toRightOf="@+id/imageView2"
                     android:ems="10"
-                    android:text="jieouy"
+                    android:text="13760172870"
                     android:textColor="#333333"
-                    android:textSize="14sp" >
+                    android:textSize="14sp"
+                    android:inputType="phone" >
 
                     <requestFocus />
                 </EditText>
@@ -106,7 +107,7 @@
                     android:src="@drawable/password_2" />
 
                 <EditText
-                    android:id="@+id/registerUserPassword"
+                    android:id="@+id/userPassword"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/imageView3"
@@ -120,7 +121,7 @@
         </RelativeLayout>
 
         <Button
-            android:id="@+id/RegisterBtn"
+            android:id="@+id/logInBtn"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginTop="12dp"

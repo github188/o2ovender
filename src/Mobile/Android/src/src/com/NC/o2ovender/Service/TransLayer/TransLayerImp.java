@@ -48,47 +48,6 @@ public class TransLayerImp {
 		mClientBootstrap.setPipelineFactory(mChannelPipelineFactory);
 		mAllChannels = new DefaultChannelGroup();
 		
-//		ChannelFuture channelFuture = mClientBootstrap.connect(new InetSocketAddress("58.61.39.245", 80));
-//		mChannel = channelFuture.awaitUninterruptibly().getChannel();
-//		if ((null != mChannel) && (null != mChannelPipelineFactory) && (null != mClientBootstrap)) {
-//			mInit = true;
-//		}
-		
-//		URI uri = new URI("http://58.61.39.245:80");
-//		String scheme = uri.getScheme() == null ? HTTP_SCHEME : uri.getScheme();	
-//		
-//		HttpRequest request = new DefaultHttpRequest(
-//				HttpVersion.HTTP_1_1, 
-//				HttpMethod.valueOf(HTTP_PROT_POST), 
-//				uri.toASCIIString());
-//		
-//		String host = uri.getHost() == null ? LOCAL_HOST : uri.getHost();
-//		int port = uri.getPort() == -1? 80 : uri.getPort();
-//		
-//		request.headers().set(HttpHeaders.Names.HOST, host);
-//		request.headers().set(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.KEEP_ALIVE);	
-//		ChannelFuture channelFuture = mClientBootstrap.connect(new InetSocketAddress(request.headers().get(HttpHeaders.Names.HOST) , port));
-//		channelFuture.addListener(new ChannelFutureListener(){
-//
-//			@Override
-//			public void operationComplete(ChannelFuture arg0) throws Exception {
-//				if (!arg0.isSuccess()) {                                                  
-//					arg0.getCause().printStackTrace();                                 
-//		            return;                            
-//		        }
-//		        mChannel = arg0.getChannel();   
-//			}
-//			
-//		});
-//        mAllChannels.add(channelFuture.getChannel());
-        
-//		mChannel = channelFuture.awaitUninterruptibly().getChannel();
-//		if ((null != mChannel) && (null != mChannelPipelineFactory) && (null != mClientBootstrap)) {
-//			mInit = true;
-//		}
-		
-//		return mInit;
-		
 		return true;
 	}
 	
@@ -173,14 +132,6 @@ public class TransLayerImp {
 	        	mHttpRequest.headers().set(HttpHeaders.Names.COOKIE, httpCookieEncoder.encode());    
 	        }
         }
-        
-//        if (null != mChannel) {
-//        	request.setContent(data);
-//        	mChannel.write(request);
-//        	return mChannel.getPipeline();
-//        } else {
-//        	return retrieve(request);
-//        }
         
         HttpHeaders.setContentLength(mHttpRequest, data.readableBytes());
         mHttpRequest.setContent(data);

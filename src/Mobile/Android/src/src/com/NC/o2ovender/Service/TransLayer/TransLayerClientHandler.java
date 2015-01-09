@@ -39,8 +39,7 @@ public class TransLayerClientHandler extends SimpleChannelUpstreamHandler {
 			throws Exception {		
 		mChannel = e.getChannel();
 		Log.i(TAG, "channelOpen mChannel =" + mChannel);
-		super.channelOpen(ctx, e);
-	}
+		super.channelOpen(ctx, e);	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext arg0, ExceptionEvent arg1)

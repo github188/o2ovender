@@ -28,23 +28,19 @@
             android:gravity="right"
             android:src="@drawable/location_imgview" />
     </RelativeLayout>
-    
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:background="#FFFFFF" >
-    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF" >
+        android:background="#F0F0F0" >
         
     <ListView
         android:id="@+id/GoodsListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:scrollbars="none"
+        android:divider="@null"
+        android:background="#F0F0F0"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp" >
     </ListView>

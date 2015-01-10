@@ -7,6 +7,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
         android:layout_weight="1" >
 
         <RelativeLayout
@@ -16,7 +17,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginRight="4dp"
-            android:background="#00FF00" >
+            android:background="#FFFFFF" >
 
             <ImageView
                 android:id="@+id/goodIcon1"
@@ -25,16 +26,18 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                android:src="@drawable/icon_test" />
 
             <TextView
                 android:id="@+id/goodName1"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:layout_below="@+id/goodIcon1"
                 android:text="统一冰红茶"
                 android:textColor="#333333"
                 android:textSize="14sp"
+                android:maxLines="2"
                 android:gravity="center" />
 
             <TextView
@@ -56,6 +59,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
         android:layout_weight = "1" >
 
         <RelativeLayout
@@ -65,22 +69,27 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="4dp"
-            android:background="#0000FF" >
+            android:background="#FFFFFF" >
             
             <ImageView
                 android:id="@+id/goodIcon2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitCenter"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/icon_test" />
 
             <TextView
                 android:id="@+id/goodName2"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:layout_below="@+id/goodIcon2"
                 android:text="统一冰红茶"
                 android:textColor="#333333"
                 android:textSize="14sp"
+                android:maxLines="2"
                 android:gravity="center" />
 
             <TextView

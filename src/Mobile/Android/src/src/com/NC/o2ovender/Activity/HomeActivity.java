@@ -71,6 +71,46 @@ public class HomeActivity extends Activity {
 	
 	list.add(map);
 	
+	map = new HashMap<String, Object>();
+	map.put(GoodsListAdspter.LEFT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.LEFT_NAME, "left_goods");
+	map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
+	map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.RIGHT_NAME, "right_goods");
+	map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
+	
+	list.add(map);
+	
+	map = new HashMap<String, Object>();
+	map.put(GoodsListAdspter.LEFT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.LEFT_NAME, "left_goods");
+	map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
+	map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.RIGHT_NAME, "right_goods");
+	map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
+	
+	list.add(map);
+	
+	map = new HashMap<String, Object>();
+	map.put(GoodsListAdspter.LEFT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.LEFT_NAME, "left_goods");
+	map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
+	map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.RIGHT_NAME, "right_goods");
+	map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
+	
+	list.add(map);
+	
+	map = new HashMap<String, Object>();
+	map.put(GoodsListAdspter.LEFT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.LEFT_NAME, "left_goods");
+	map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
+	map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.icon_test);
+	map.put(GoodsListAdspter.RIGHT_NAME, "right_goods");
+	map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
+	
+	list.add(map);
+	
 	return list;
 }
 	

@@ -3,5 +3,36 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="TitleBarIcon_margin">8dp</dimen>
+    <dimen name="TitleBarIcon_width">40dp</dimen>
+    <dimen name="TitleBarIcon_height">40dp</dimen>
+    <dimen name="TitelBar_height">56dp</dimen>
+    <dimen name="TitelTextView_left_margin">12dp</dimen>
+    <dimen name="InputItem_height">48dp</dimen>
+    <dimen name="InputItem_Icon_layout_width">36dp</dimen>
+    <dimen name="InputItem_Icon_layout_height">36dp</dimen>
+    <dimen name="InputItem_Edit_left_margin">16dp</dimen>
+    <dimen name="RegitsItme_margin">20dp</dimen>
+    <dimen name="UserIcon_Width">80dp</dimen>
+    <dimen name="UserIcon_Height">80dp</dimen>
+    <dimen name="UserIcon_top_margin">8dp</dimen>
+    <dimen name="UserIcon_bottom_margin">18dp</dimen>
+    <dimen name="UserIconlayout_height">112dp</dimen>
+    <dimen name="GoodsListView_margin">8dp</dimen>
+    <dimen name="GoodsListView_half_margin">4dp</dimen>
+    <dimen name="GoodsItem_Name_Height">36dp</dimen>
+    <dimen name="GoodsItem_Name_Horizontal_margin">16dp</dimen>
+    <dimen name="GoodsItem_Price_Height">36dp</dimen>
+    <dimen name="GoodsItem_Price_top_margin">5dp</dimen>
+    <dimen name="LoginRegist_Btn_top_margin">12dp</dimen>
+    
+    
+    <dimen name="TitleText_Font_Size">18sp</dimen>
+    <dimen name="Input_Font_Size">14sp</dimen>
+    <dimen name="Big_Btn_Font_Size">16sp</dimen>
+    <dimen name="Normal_Btn_Font_Size">16sp</dimen>
+    <dimen name="GoodsName_Font_Size">14sp</dimen>
+    <dimen name="GoodsPrice_Font_Size">14sp</dimen>
+    
 
 </resources>

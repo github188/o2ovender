@@ -5,5 +5,9 @@
     <color name="Goodsprice">#FF571F</color>
     <color name="GoodsBackgroup">#FFFFFF</color>
     <color name="OrangeBackground">#FF571F</color>
+    <color name="WhiteBackground">#FFFFFF</color>
+    <color name="GayBackground">#F0F0F0</color>
+    <color name="TitleTextColor">#666666</color>
+    <color name="InputText">#333333</color>
     
 </resources>

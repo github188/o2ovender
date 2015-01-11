@@ -1,18 +1,35 @@
 package com.NC.o2ovender.Data;
 
-public class GoodsInfo {
+import java.io.Serializable;
+
+public class GoodsInfo implements Serializable {
 	private int mGoodsID = 0;
-	private String mGoodsIcon = null;
+	private int mGoodsIcon = 0;
 	private String mGoodsName = null;
-	private double mGoodsPrice = 2;
+	private String mGoodsPrice = null;
 	private double mGoodsOff = 0;
-	public GoodsInfo(int mGoodsID, String mGoodsIcon, String mGoodsName,
-			double mGoodsPrice, double mGoodsOff) {
+	public GoodsInfo(int mGoodsID, int mGoodsIcon, String mGoodsName,
+			String mGoodsPrice, double mGoodsOff) {
 		super();
 		this.mGoodsID = mGoodsID;
 		this.mGoodsIcon = mGoodsIcon;
 		this.mGoodsName = mGoodsName;
 		this.mGoodsPrice = mGoodsPrice;
 		this.mGoodsOff = mGoodsOff;
+	}
+	public int getGoodsID() {
+		return mGoodsID;
+	}
+	public int getGoodsIcon() {
+		return mGoodsIcon;
+	}
+	public String getGoodsName() {
+		return mGoodsName;
+	}
+	public String getGoodsPrice() {
+		return mGoodsPrice;
+	}
+	public double getGoodsOff() {
+		return mGoodsOff;
 	}	
 }

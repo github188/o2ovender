@@ -3,36 +3,35 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FF5717" >
+    android:background="@color/OrangeBackground" >
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp" >
-
-        <ImageView
-            android:id="@+id/userInfo"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="8dp"
-            android:src="@drawable/userinfo_imgview" />
+        android:layout_height="@dimen/TitelBar_height" >
 
         <ImageView
             android:id="@+id/location"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/TitleBarIcon_width"
+            android:layout_height="@dimen/TitleBarIcon_height"
             android:layout_alignParentLeft="true"
             android:layout_alignTop="@+id/userInfo"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="@dimen/TitleBarIcon_margin"
             android:gravity="right"
             android:src="@drawable/location_imgview" />
+        <ImageView
+            android:id="@+id/userInfo"
+            android:layout_width="@dimen/TitleBarIcon_width"
+            android:layout_height="@dimen/TitleBarIcon_height"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/TitleBarIcon_margin"
+            android:src="@drawable/userinfo_imgview" />
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F0F0F0" >
+        android:background="@color/Backgroup" >
         
     <ListView
         android:id="@+id/GoodsListView"
@@ -40,9 +39,9 @@
         android:layout_height="wrap_content"
         android:scrollbars="none"
         android:divider="@null"
-        android:background="#F0F0F0"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp" >
+        android:background="@color/Backgroup"
+        android:layout_marginLeft="@dimen/GoodsListView_margin"
+        android:layout_marginRight="@dimen/GoodsListView_margin" >
     </ListView>
     
     </RelativeLayout>

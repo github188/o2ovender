@@ -3,74 +3,74 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F0F0">
+    android:background="@color/GayBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F0F0F0"
+        android:background="@color/GayBackground"
         android:orientation="vertical" >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="#FF571F" >
+            android:layout_height="@dimen/TitelBar_height"
+            android:background="@color/OrangeBackground" >
 
             <ImageView
                 android:id="@+id/registerBackHome"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/TitleBarIcon_width"
+                android:layout_height="@dimen/TitleBarIcon_height"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="8dp"
-                android:src="@drawable/return_3" />
+                android:layout_marginLeft="@dimen/TitleBarIcon_margin"
+                android:src="@drawable/orgran_return_imgview" />
 
             <TextView
                 android:id="@+id/RegisterTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="@dimen/TitelTextView_left_margin"
                 android:layout_toRightOf="@+id/registerBackHome"
-                android:text="注册"
-                android:textColor="#666666"
-                android:textSize="18sp" />
+                android:text="@string/RegistTitle"
+                android:textColor="@color/TitleTextColor"
+                android:textSize="@dimen/TitleText_Font_Size" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="112dp"
-            android:background="#F0F0F0" >
+            android:layout_height="@dimen/UserIconlayout_height"
+            android:background="@color/GayBackground" >
 
             <ImageView
                 android:id="@+id/imageView1"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="@dimen/UserIcon_Width"
+                android:layout_height="@dimen/UserIcon_Height"
                 android:layout_centerHorizontal="true"
-                android:layout_marginBottom="18dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginBottom="@dimen/UserIcon_bottom_margin"
+                android:layout_marginTop="@dimen/UserIcon_top_margin"
                 android:src="@drawable/icon_normal" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="146dp"
-            android:background="#FFFFFF" >
+            android:background="@color/WhiteBackground" >
 
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/InputItem_height"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true" >
 
                 <ImageView
                     android:id="@+id/imageView2"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="@dimen/InputItem_Icon_layout_width"
+                    android:layout_height="@dimen/InputItem_Icon_layout_height"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="12dp"
+                    android:layout_marginLeft="@dimen/TitelTextView_left_margin"
                     android:src="@drawable/account_2" />
 
                 <EditText
@@ -78,12 +78,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/imageView2"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginLeft="@dimen/InputItem_Edit_left_margin"
                     android:layout_toRightOf="@+id/imageView2"
                     android:ems="10"
-                    android:text="13760172870"
-                    android:textColor="#333333"
-                    android:textSize="14sp"
+                    android:text="@string/UsePhoneDefault"
+                    android:textColor="@color/InputText"
+                    android:textSize="@dimen/Input_Font_Size"
                     android:inputType="phone" >
 
                     <requestFocus />
@@ -92,18 +92,18 @@
 			
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/InputItem_height"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true" >
 
                 <ImageView
                     android:id="@+id/imageView3"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="@dimen/InputItem_Icon_layout_width"
+                    android:layout_height="@dimen/InputItem_Icon_layout_height"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="12dp"
+                    android:layout_marginLeft="@dimen/TitelTextView_left_margin"
                     android:src="@drawable/password_2" />
 
                 <EditText
@@ -111,17 +111,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignTop="@+id/imageView3"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginLeft="@dimen/InputItem_Edit_left_margin"
                     android:layout_toRightOf="@+id/imageView3"
                     android:ems="10"
                     android:inputType="textPassword"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
+                    android:textColor="@color/InputText"
+                    android:textSize="@dimen/Input_Font_Size" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/InputItem_height"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true" >
@@ -132,8 +132,10 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentLeft="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="16dp"
+                    android:layout_marginLeft="@dimen/InputItem_Edit_left_margin"
                     android:ems="10"
+                    android:textSize="@dimen/Input_Font_Size"
+                    android:textColor="@color/InputText"
                     android:inputType="numberPassword" />
 
                 <Button
@@ -142,8 +144,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="16dp"
+                    android:textSize="@dimen/Normal_Btn_Font_Size"
                     android:layout_toRightOf="@+id/verificationEdit"
-                    android:text="获取短信验证码" />
+                    android:text="@string/GetAccount" />
 
             </RelativeLayout>
 
@@ -152,19 +155,12 @@
         <Button
             android:id="@+id/RegisterBtn"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="12dp"
-            android:background="#FF571F"
-            android:text="注册"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp" >
-
-        </RelativeLayout>
+            android:layout_height="@dimen/InputItem_height"
+            android:layout_marginTop="@dimen/LoginRegist_Btn_top_margin"
+            android:background="@color/OrangeBackground"
+            android:text="@string/RegistTitle"
+            android:textColor="@color/WhiteBackground"
+            android:textSize="@dimen/Big_Btn_Font_Size" />
 
     </LinearLayout>
 

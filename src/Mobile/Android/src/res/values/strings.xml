@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">O2OVender</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">便利超人</string>
     <string name="action_settings">Settings</string>
+    <string name="LoginTitle">登录</string>
+    <string name="RegistTitle">注册</string>
+    <string name="GetPasswordTitle">忘记密码</string>
+    <string name="BuyTitle">购买</string>
+    <string name="UsePhoneDefault">请输入您的手机号码</string>
+    <string name="GetAccount">获取短信验证</string>
+    <string name="PayPrice">实付价格</string>
+    <string name="RawPrice">价格:¥</string>
+    <string name="OffPrice">优惠:</string>
+    <string name="Buy">立即购买</string>
 
 </resources>

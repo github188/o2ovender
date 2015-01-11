@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/GayBackground" >
+
+	<RelativeLayout
+		android:layout_width="match_parent"
+		android:layout_height="@dimen/TitelBar_height"
+		android:background="@color/OrangeBackground" >
+
+        <ImageView
+            android:id="@+id/buyBackHome"
+            android:layout_width="@dimen/TitleBarIcon_width"
+			android:layout_height="@dimen/TitleBarIcon_height"
+			android:layout_alignParentLeft="true"
+			android:layout_centerVertical="true"
+			android:layout_marginLeft="@dimen/TitleBarIcon_margin"
+			android:src="@drawable/orgran_return_imgview" />
+
+            <TextView
+                android:id="@+id/buyTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/TitelTextView_left_margin"
+                android:layout_toRightOf="@+id/buyBackHome"
+                android:text="@string/BuyTitle"
+                android:textColor="@color/TitleTextColor"
+                android:textSize="@dimen/TitleText_Font_Size" />
+        </RelativeLayout>
+
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+
+            <ImageView
+                android:id="@+id/goodIcon1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:scaleType="center"
+                android:src="@drawable/bskltest"
+                android:background="@color/WhiteBackground" />
+
+            <TextView
+                android:id="@+id/goodName1"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/GoodsItem_Name_Height"
+                android:layout_below="@+id/goodIcon1"
+                android:layout_marginLeft="@dimen/GoodsItem_Name_Horizontal_margin"
+                android:layout_marginRight="@dimen/GoodsItem_Name_Horizontal_margin"
+                android:text="统一冰红茶"
+                android:textColor="@color/GoodsName"
+                android:textSize="@dimen/GoodsName_Font_Size"
+                android:maxLines="2"
+                android:gravity="center" />
+	</RelativeLayout>
+
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+        <LinearLayout
+	    	android:layout_width="match_parent"
+	    	android:layout_height="97dp"
+	    	android:orientation="horizontal" >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="9" >
+                
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/InputItem_height"
+                    android:layout_above="@+id/textView3"
+                    android:layout_alignParentTop="true"
+                    android:text="@string/RawPrice"
+                    android:gravity="center"
+                    android:background="@color/WhiteBackground" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/InputItem_height"
+                    android:layout_alignParentBottom="true"
+                    android:text="@string/OffPrice"
+                    android:gravity="center"
+                    android:background="@color/WhiteBackground" />                
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="1dp"
+                android:textSize="@dimen/TitleText_Font_Size"
+                android:textColor="@color/Goodsprice"
+                android:maxLines="2"
+                android:text="@string/PayPrice"
+                android:background="@color/WhiteBackground"
+                android:gravity="center"
+                android:layout_weight="1" />
+
+		</LinearLayout>
+	</RelativeLayout>
+	
+	<Button
+            android:id="@+id/buyBtn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/InputItem_height"
+            android:layout_marginTop="@dimen/LoginRegist_Btn_top_margin"
+            android:background="@color/OrangeBackground"
+            android:text="@string/Buy"
+            android:textColor="@color/WhiteBackground"
+            android:textSize="@dimen/Big_Btn_Font_Size" />
+        
+</LinearLayout>

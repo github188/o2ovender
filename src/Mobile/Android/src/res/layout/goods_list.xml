@@ -36,7 +36,6 @@
                 android:layout_below="@+id/goodIcon1"
                 android:layout_marginLeft="@dimen/GoodsItem_Name_Horizontal_margin"
                 android:layout_marginRight="@dimen/GoodsItem_Name_Horizontal_margin"
-                android:text="统一冰红茶"
                 android:textColor="@color/GoodsName"
                 android:textSize="@dimen/GoodsName_Font_Size"
                 android:maxLines="2"
@@ -51,7 +50,6 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="@dimen/GoodsItem_Price_top_margin"
                 android:gravity="center"
-                android:text="¥ 2.80"
                 android:textColor="@color/Goodsprice"
                 android:textSize="@dimen/GoodsPrice_Font_Size" />
 
@@ -70,26 +68,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginLeft="@dimen/GoodsListView_half_margin"
             android:background="@color/WhiteBackground" >
             
             <ImageView
                 android:id="@+id/goodIcon2"
-                android:layout_width="match_parent"
+               android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
-                android:scaleType="center" />
+                android:scaleType="center" />"
 
             <TextView
                 android:id="@+id/goodName2"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/GoodsItem_Name_Height"
                 android:layout_below="@+id/goodIcon2"
-                android:text="统一冰红茶"
                 android:layout_marginLeft="@dimen/GoodsItem_Name_Horizontal_margin"
                 android:layout_marginRight="@dimen/GoodsItem_Name_Horizontal_margin"
                 android:textColor="@color/GoodsName"
@@ -106,7 +103,6 @@
                 android:height="@dimen/GoodsItem_Price_Height"
                 android:layout_marginTop="@dimen/GoodsItem_Price_top_margin"
                 android:gravity="center"
-                android:text="¥ 2.80"
                 android:textColor="@color/Goodsprice"
                 android:textSize="@dimen/GoodsPrice_Font_Size" />
 

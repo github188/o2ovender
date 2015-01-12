@@ -1,18 +1,13 @@
 package com.NC.o2ovender.Activity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -25,21 +20,28 @@ public class HomeActivity extends Activity {
 	private ImageView mUserInfo = null;
 	private ListView mGoodsListView = null;
 	public static HomeActivity sHomeActivity = null;
+	
+	public class GoodsItemData {
+		private GoodsInfo mLeftData = null;
+		private GoodsInfo mRightData = null;
+		public GoodsItemData(GoodsInfo leftData, GoodsInfo rightData) {
+			super();
+			this.mLeftData = leftData;
+			this.mRightData = rightData;
+		}
+		public GoodsInfo getLeftData() {
+			return mLeftData;
+		}
+		public GoodsInfo getRightData() {
+			return mRightData;
+		}		
+	}
 
 	private void initTitle() {
 		mLocation = (ImageView)findViewById(R.id.location);
-		mLocation.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
 		
 		mUserInfo = (ImageView)findViewById(R.id.userInfo);
-		mUserInfo.setOnClickListener(new OnClickListener() {
-			
+		mUserInfo.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(HomeActivity.this, LoginActivity.class));				
@@ -49,90 +51,20 @@ public class HomeActivity extends Activity {
 	
 	private void initGoodsListView() {
 		mGoodsListView = (ListView)findViewById(R.id.GoodsListView);
-//		List<Map<String, Object>> goodsListData = getData();
-//		mGoodsListView.setAdapter(new GoodsListAdspter(this, goodsListData));
-		List<GoodsInfo> goodsListData = getData();
+		List<GoodsItemData> goodsListData = getData();
 		mGoodsListView.setAdapter(new GoodsListAdspter(this, goodsListData));
 	}
 	
-	private List<GoodsInfo> getData() {
-		List<GoodsInfo> list = new ArrayList<GoodsInfo>();
+	private List<GoodsItemData> getData() {
+		List<GoodsItemData> list = new ArrayList<GoodsItemData>();
 		
 		String leftName = "left_goods++++++++统一冰红茶";
 		String rightName = "right_goods++++++++统一冰红茶";
-		list.add(new GoodsInfo(0, R.drawable.bskltest, leftName, "¥ 2.80", 0));
-		list.add(new GoodsInfo(0, R.drawable.bskltest, rightName, "¥ 6.50", 0));
-		list.add(new GoodsInfo(0, R.drawable.bskltest, leftName, "¥ 2.80", 0));
-		list.add(new GoodsInfo(0, R.drawable.bskltest, rightName, "¥ 1.80", 0));
-		list.add(new GoodsInfo(0, R.drawable.bskltest, leftName, "¥ 2.80", 0));
-		list.add(new GoodsInfo(0, R.drawable.bskltest, rightName, "¥ 3.80", 0));
+		list.add(new GoodsItemData(new GoodsInfo(0, R.drawable.bskltest, leftName, "¥ 4.80", 0), new GoodsInfo(0, R.drawable.bskl300ml, rightName, "¥ 6.50", 0)));
+		list.add(new GoodsItemData(new GoodsInfo(0, R.drawable.bskl600ml, leftName, "¥ 5.80", 0), new GoodsInfo(0, R.drawable.bskl300ml, rightName, "¥ 1.80", 0)));
+		list.add(new GoodsItemData(new GoodsInfo(0, R.drawable.bskl300ml, rightName, "¥ 1.80", 0), null));
 		return list;
 	}
-//	private List<Map<String, Object>> getData() {
-//		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-//	
-//		Map<String, Object> map = new HashMap<String, Object>();
-//		map.put(GoodsListAdspter.LEFT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.LEFT_NAME, "left_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.LEFT_PRICE, "¥ 2.80");
-//		map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.RIGHT_NAME, "right_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 6.50");
-//	
-//		list.add(map);
-//		
-//		map = new HashMap<String, Object>();
-//		map.put(GoodsListAdspter.LEFT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.LEFT_NAME, "left_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
-//		map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.RIGHT_NAME, "right_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
-//		
-//		list.add(map);
-//	
-//		map = new HashMap<String, Object>();
-//		map.put(GoodsListAdspter.LEFT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.LEFT_NAME, "left_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
-//		map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.RIGHT_NAME, "right_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
-//		
-//		list.add(map);
-//		
-//		map = new HashMap<String, Object>();
-//		map.put(GoodsListAdspter.LEFT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.LEFT_NAME, "left_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
-//		map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.RIGHT_NAME, "right_goods++++++++统一冰红茶");
-//		map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
-//		
-//		list.add(map);
-//		
-//		map = new HashMap<String, Object>();
-//		map.put(GoodsListAdspter.LEFT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.LEFT_NAME, "left_goods");
-//		map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
-//		map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.RIGHT_NAME, "right_goods");
-//		map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
-//		
-//		list.add(map);
-//		
-//		map = new HashMap<String, Object>();
-//		map.put(GoodsListAdspter.LEFT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.LEFT_NAME, "left_goods");
-//		map.put(GoodsListAdspter.LEFT_PRICE, "¥ 3.80");
-//		map.put(GoodsListAdspter.RIGHT_PICID, R.drawable.bskltest);
-//		map.put(GoodsListAdspter.RIGHT_NAME, "right_goods");
-//		map.put(GoodsListAdspter.RIGHT_PRICE, "¥ 7.50");
-//		
-//		list.add(map);
-//		
-//		return list;
-//	}
 	
 	private void initView() {
 		sHomeActivity = this;
@@ -142,7 +74,6 @@ public class HomeActivity extends Activity {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.home_activity);
 		initView();
